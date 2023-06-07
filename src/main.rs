@@ -70,9 +70,9 @@ struct Opt {
     d: u64, // notary delay
     #[structopt(long, default_value = "56789")]
     port: u64,    // port which the peers listen for connections
-    #[structopt(name="broadcast_interval", long, default_value = "100")]
+    #[structopt(name="broadcast_interval", long, default_value = "10")]
     broadcast_interval: u64, // interval after which artifacts are broadcasted
-    #[structopt(name="artifact_manager_polling_interval", long, default_value = "200")]
+    #[structopt(name="artifact_manager_polling_interval", long, default_value = "20")]
     artifact_manager_polling_interval: u64, // periodic duration of `PollEvent` in milliseconds
 }
 
@@ -164,7 +164,25 @@ async fn main() -> Result<()> {
             let starting_time = system_time_now();
             let relative_duration = Duration::from_millis(opt.t * 1000);
             let absolute_end_time = get_absolute_end_time(starting_time, relative_duration);
+            let initation_end_time = starting_time +  Duration::from_millis(10 * 1000);
+            let mut initationPhase = true;
             loop {
+                if initationPhase {
+                    let mut broadcast_interval = stream::interval(Duration::from_millis(opt.broadcast_interval*100));
+                    select! {
+                        _ = broadcast_interval.next().fuse() => {
+                            // prevent Mdns expiration event by periodically broadcasting keep alive messages to peers
+                            // if any locally generated artifact, broadcast it
+                            if my_peer.artifact_manager_started() {
+                                my_peer.broadcast_message();
+                            }
+                        },
+                        event = my_peer.get_next_event() => my_peer.match_event(event),
+                    }
+                    if system_time_now() > initation_end_time {
+                        initationPhase = false;
+                    }
+                } 
                 if system_time_now() < absolute_end_time {
                     let mut broadcast_interval = stream::interval(Duration::from_millis(opt.broadcast_interval));
                     select! {
