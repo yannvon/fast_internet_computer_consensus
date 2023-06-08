@@ -179,7 +179,7 @@ async fn main() -> Result<()> {
                             // prevent Mdns expiration event by periodically broadcasting keep alive messages to peers
                             // if any locally generated artifact, broadcast it
                             if my_peer.artifact_manager_started() {
-                                my_peer.broadcast_message_or_keepalive();
+                                my_peer.broadcast_message();
                             }
                         },
                         event = my_peer.get_next_event() => my_peer.match_event(event),
