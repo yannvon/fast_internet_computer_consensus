@@ -7,6 +7,83 @@ import matplotlib.pyplot as plt
 
 
 peers = [
+    # Canada     
+    {    
+        "number": "12",
+        "ip": "35.182.54.20",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    {
+        "number": "11",
+        "ip": "15.223.46.166",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Mumbai     
+    {    
+        "number": "10",
+        "ip": "52.66.93.156",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    {
+        "number": "9",
+        "ip": "43.204.96.157",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Sao Paolo     
+    {    
+        "number": "8",
+        "ip": "15.229.26.89",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    {
+        "number": "7",
+        "ip": "15.228.35.157",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Singapore
+    {    
+        "number": "6",
+        "ip": "54.169.78.134",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    {
+        "number": "5",
+        "ip": "54.169.71.33",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # N. Virginia
     {    
         "number": "4",
         "ip": "54.172.199.112",
@@ -25,6 +102,7 @@ peers = [
         "id": "",
         "remote_peers_addresses": "",
     },
+    # Frankfurt
     {
         "number": "2",
         "ip": "3.68.65.62",
@@ -47,11 +125,86 @@ peers = [
 
 
 N = len(peers)
-F = 1
+F = 3
 P = 0
 T = 300 # Runtime
 D = 3000 # Notarization delay
 FICC = True
+BI=100
+PI=200
+BIRU=100
+RUT=100
+
+UPDATE_REPO = False
+UPDATE_MAIN = False
+
+
+if UPDATE_MAIN:
+    print("\Cleaning repo on replicas")
+
+    for peer in peers:
+        print("\nCleaning main for replica", peer["number"])
+        clone_repo_cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'rm -rf fast_internet_computer_consensus/src/main.rs\''
+        process = subprocess.Popen(clone_repo_cmd, shell=True)
+        process.wait()
+
+
+    print("\Cloning main on replicas")
+
+    for peer in peers:
+        print("\nCloning main for replica", peer["number"])
+        clone_repo_cmd = f'scp -i ./keys/{peer["key_file"]} ./src/main.rs ubuntu@{peer["ip"]}:fast_internet_computer_consensus/src/main.rs'
+        process = subprocess.Popen(clone_repo_cmd, shell=True)
+        process.wait()
+
+    print("\nRepo cloned on replicas")
+
+    processes = []
+    for peer in peers:
+        print("\nBuilding container for replica", peer["number"])
+        build_container_cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'cd fast_internet_computer_consensus && docker compose build\''
+        process = subprocess.Popen(build_container_cmd, shell=True, stdout=subprocess.DEVNULL)
+        processes.append(process)
+
+    for p in processes:
+        p.communicate() # waits for replica to finish
+
+    print("\nContainer built on replicas")
+
+
+
+if UPDATE_REPO:
+    print("\Cleaning repo on replicas")
+
+    for peer in peers:
+        print("\nCleaning repo for replica", peer["number"])
+        clone_repo_cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'rm -rf fast_internet_computer_consensus/\''
+        process = subprocess.Popen(clone_repo_cmd, shell=True)
+        process.wait()
+
+
+    print("\Cloning repo on replicas")
+
+    for peer in peers:
+        print("\nCloning repo for replica", peer["number"])
+        clone_repo_cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'git clone https://github.com/yannvon/fast_internet_computer_consensus.git\''
+        process = subprocess.Popen(clone_repo_cmd, shell=True)
+        process.wait()
+
+    print("\nRepo cloned on replicas")
+
+    processes = []
+    for peer in peers:
+        print("\nBuilding container for replica", peer["number"])
+        build_container_cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'cd fast_internet_computer_consensus && docker compose build\''
+        process = subprocess.Popen(build_container_cmd, shell=True, stdout=subprocess.DEVNULL)
+        processes.append(process)
+
+    for p in processes:
+        p.communicate() # waits for replica to finish
+
+    print("\nContainer built on replicas")
+
 
 print("\nStarting subnet running " + ("FICC" if FICC else "ICC") + f" with n={N}, f={F} and p={P}")
 
@@ -64,6 +217,10 @@ for peer in peers:
         contents[3] = "DISAGREEING_REPLICA="+str(P)+"\n"
         contents[4] = "EXECUTION_TIME="+str(T)+"\n"
         contents[5] = "NOTARIZATION_DELAY="+str(D)+"\n"
+        contents[6] = "BROADCAST_INTERVAL="+str(BI)+"\n"
+        contents[7] = "ARTIFACT_MANAGER_POLLING_INTERVAL="+str(PI)+"\n"
+        contents[6] = "BROADCAST_INTERVAL_RAMP_UP="+str(BIRU)+"\n"
+        contents[7] = "RAMP_UP_TIME="+str(RUT)+"\n"
 
     with open("./.env.example", "w") as file:
         file.writelines(contents)
@@ -75,9 +232,9 @@ for peer in peers:
 with open("docker-compose.yml", "r") as file:
     contents = file.readlines()
     if FICC:
-        contents[8] = '    command: ["--cod", "--r", $REPLICA_NUMBER, "--n", $TOTAL_REPLICA_NUMBER, "--f", $FAULTY_REPLICAS, "--p", $DISAGREEING_REPLICA, "--t", $EXECUTION_TIME, "--d", $NOTARIZATION_DELAY, "--broadcast_interval", "$BROADCAST_INTERVAL","--artifact_manager_polling_interval", "$ARTIFACT_MANAGER_POLLING_INTERVAL", "--port", $PORT]\n'
+        contents[8] = '    command: ["--cod", "--r", $REPLICA_NUMBER, "--n", $TOTAL_REPLICA_NUMBER, "--f", $FAULTY_REPLICAS, "--p", $DISAGREEING_REPLICA, "--t", $EXECUTION_TIME, "--d", $NOTARIZATION_DELAY, "--broadcast_interval", "$BROADCAST_INTERVAL","--artifact_manager_polling_interval", "$ARTIFACT_MANAGER_POLLING_INTERVAL", "--broadcast_interval_ramp_up", "$BROADCAST_INTERVAL_RAMP_UP","--ramp_up_time", "$RAMP_UP_TIME", "--port", $PORT]\n'
     else:
-        contents[8] = '    command: ["--r", $REPLICA_NUMBER, "--n", $TOTAL_REPLICA_NUMBER, "--f", $FAULTY_REPLICAS, "--p", $DISAGREEING_REPLICA, "--t", $EXECUTION_TIME, "--d", $NOTARIZATION_DELAY, "--broadcast_interval", "$BROADCAST_INTERVAL","--artifact_manager_polling_interval", "$ARTIFACT_MANAGER_POLLING_INTERVAL", "--port", $PORT]\n'
+        contents[8] = '    command: ["--r", $REPLICA_NUMBER, "--n", $TOTAL_REPLICA_NUMBER, "--f", $FAULTY_REPLICAS, "--p", $DISAGREEING_REPLICA, "--t", $EXECUTION_TIME, "--d", $NOTARIZATION_DELAY, "--broadcast_interval", "$BROADCAST_INTERVAL","--artifact_manager_polling_interval", "$ARTIFACT_MANAGER_POLLING_INTERVAL", "--broadcast_interval_ramp_up", "$BROADCAST_INTERVAL_RAMP_UP","--ramp_up_time", "$RAMP_UP_TIME", "--port", $PORT]\n'
 
 with open("docker-compose.yml", "w") as file:
     file.writelines(contents)

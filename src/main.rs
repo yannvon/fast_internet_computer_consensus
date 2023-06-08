@@ -74,6 +74,11 @@ struct Opt {
     broadcast_interval: u64, // interval after which artifacts are broadcasted
     #[structopt(name="artifact_manager_polling_interval", long, default_value = "200")]
     artifact_manager_polling_interval: u64, // periodic duration of `PollEvent` in milliseconds
+    #[structopt(name="broadcast_interval_ramp_up", long, default_value = "200")]
+    broadcast_interval_ramp_up: u64, // interval after which artifacts are broadcasted during ramp up in milliseconds
+    #[structopt(long, default_value = "100")]
+    ramp_up_time: u64, // time to ramp up replica in seconds
+    
 }
 
 #[derive(Clone)]
@@ -164,11 +169,11 @@ async fn main() -> Result<()> {
             let starting_time = system_time_now();
             let relative_duration = Duration::from_millis(opt.t * 1000);
             let absolute_end_time = get_absolute_end_time(starting_time, relative_duration);
-            let initation_end_time = starting_time +  Duration::from_millis(200 * 1000);
+            let initation_end_time = starting_time +  Duration::from_millis(opt.ramp_up_time * 1000);
             let mut initation_phase = true;
             loop {
                 if initation_phase {
-                    let mut broadcast_interval = stream::interval(Duration::from_millis(opt.broadcast_interval*100));
+                    let mut broadcast_interval = stream::interval(Duration::from_millis(opt.broadcast_interval_ramp_up));
                     select! {
                         _ = broadcast_interval.next().fuse() => {
                             // prevent Mdns expiration event by periodically broadcasting keep alive messages to peers
