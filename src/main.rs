@@ -76,7 +76,7 @@ struct Opt {
     artifact_manager_polling_interval: u64, // periodic duration of `PollEvent` in milliseconds
     #[structopt(name="broadcast_interval_ramp_up", long, default_value = "200")]
     broadcast_interval_ramp_up: u64, // interval after which artifacts are broadcasted during ramp up in milliseconds
-    #[structopt(long, default_value = "100")]
+    #[structopt(name="ramp_up_time", long, default_value = "100")]
     ramp_up_time: u64, // time to ramp up replica in seconds
     
 }
@@ -179,7 +179,7 @@ async fn main() -> Result<()> {
                             // prevent Mdns expiration event by periodically broadcasting keep alive messages to peers
                             // if any locally generated artifact, broadcast it
                             if my_peer.artifact_manager_started() {
-                                my_peer.broadcast_message();
+                                my_peer.broadcast_message_or_keepalive();
                             }
                         },
                         event = my_peer.get_next_event() => my_peer.match_event(event),
