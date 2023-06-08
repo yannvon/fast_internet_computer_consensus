@@ -5,154 +5,52 @@ import os
 import json
 import matplotlib.pyplot as plt
 
+
 peers = [
-    {
-        "number": "2",
-        "ip": "18.207.122.55",
+    {    
+        "number": "4",
+        "ip": "54.172.199.112",
         "web_server_port": "56790",
         "libp2p_port": "56789",
-        "key_file": "ficc_peer_b_aws_rsa_key.pem",
+        "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
     {
         "number": "3",
-        "ip": "3.89.57.68",
+        "ip": "18.234.83.0",
         "web_server_port": "56790",
         "libp2p_port": "56789",
-        "key_file": "ficc_peer_b_aws_rsa_key.pem",
+        "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
     {
-        "number": "4",
-        "ip": "3.90.64.216",
+        "number": "2",
+        "ip": "3.68.65.62",
         "web_server_port": "56790",
         "libp2p_port": "56789",
-        "key_file": "peer_2_nw_aws_rsa_key.pem",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    {
-        "number": "5",
-        "ip": "54.90.237.53",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "ficc_peer_bb_aws_rsa_key.pem",
-        "id": "",
-        "remote_peers_addresses": "",
-    },{
-        "number": "6",
-        "ip": "54.221.129.22",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "ficc_peer_bb_aws_rsa_key.pem",
-        "id": "",
-        "remote_peers_addresses": "",
-    },{
-        "number": "7",
-        "ip": "3.80.25.119",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "ficc_peer_bb_aws_rsa_key.pem",
-        "id": "",
-        "remote_peers_addresses": "",
-    },{
-        "number": "8",
-        "ip": "34.204.49.128",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "ficc_peer_bb_aws_rsa_key.pem",
-        "id": "",
-        "remote_peers_addresses": "",
-    },{
-        "number": "9",
-        "ip": "54.242.231.70",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "ficc_peer_bb_aws_rsa_key.pem",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    {
-        "number": "10",
-        "ip": "54.176.162.128",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "ficc_peer_a_aws_rsa_key.cer",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    {
-        "number": "11",
-        "ip": "13.57.221.56",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "ficc_peer_a_aws_rsa_key.cer",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    {
-        "number": "12",
-        "ip": "3.101.26.91",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "peer_7_cali_aws_rsa_key.pem",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    {
-        "number": "13",
-        "ip": "13.52.163.27",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "ficc_peer_a_aws_rsa_key.cer",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    {
-        "number": "14",
-        "ip": "54.219.209.156",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "ficc_peer_ab_aws_rsa_key.pem",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    {
-        "number": "15",
-        "ip": "54.67.18.230",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "ficc_peer_ab_aws_rsa_key.pem",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    {
-        "number": "16",
-        "ip": "184.169.205.232",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "ficc_peer_ab_aws_rsa_key.pem",
+        "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
     {
         "number": "1",
-        "ip": "52.53.194.157",
+        "ip": "3.77.156.202",
         "web_server_port": "56790",
         "libp2p_port": "56789",
-        "key_file": "ficc_peer_ab_aws_rsa_key.pem",
+        "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
 ]
 
+
 N = len(peers)
-F = 3
-P = 3
-T = 300
-D = 3000
+F = 1
+P = 0
+T = 300 # Runtime
+D = 3000 # Notarization delay
 FICC = True
 
 print("\nStarting subnet running " + ("FICC" if FICC else "ICC") + f" with n={N}, f={F} and p={P}")
@@ -171,28 +69,28 @@ for peer in peers:
         file.writelines(contents)
 
     os.chmod("./keys/"+peer["key_file"], 0o400)
-    set_params_cmd = f'scp -i ./keys/{peer["key_file"]} ./.env.example ubuntu@{peer["ip"]}:consensus_on_demand/.env'
+    set_params_cmd = f'scp -i ./keys/{peer["key_file"]} ./.env.example ubuntu@{peer["ip"]}:fast_internet_computer_consensus/.env'
     subprocess.run(set_params_cmd, shell=True)
 
 with open("docker-compose.yml", "r") as file:
     contents = file.readlines()
     if FICC:
-        contents[8] = '    command: ["--cod", "--r", $REPLICA_NUMBER, "--n", $TOTAL_REPLICA_NUMBER, "--f", $FAULTY_REPLICAS, "--p", $DISAGREEING_REPLICA, "--t", $EXECUTION_TIME, "--d", $NOTARIZATION_DELAY, "--broadcast_interval", "$BROADCAST_INTERVAL", "--port", $PORT]\n'
+        contents[8] = '    command: ["--cod", "--r", $REPLICA_NUMBER, "--n", $TOTAL_REPLICA_NUMBER, "--f", $FAULTY_REPLICAS, "--p", $DISAGREEING_REPLICA, "--t", $EXECUTION_TIME, "--d", $NOTARIZATION_DELAY, "--broadcast_interval", "$BROADCAST_INTERVAL","--artifact_manager_polling_interval", "$ARTIFACT_MANAGER_POLLING_INTERVAL", "--port", $PORT]\n'
     else:
-        contents[8] = '    command: ["--r", $REPLICA_NUMBER, "--n", $TOTAL_REPLICA_NUMBER, "--f", $FAULTY_REPLICAS, "--p", $DISAGREEING_REPLICA, "--t", $EXECUTION_TIME, "--d", $NOTARIZATION_DELAY, "--broadcast_interval", "$BROADCAST_INTERVAL", "--port", $PORT]\n'
+        contents[8] = '    command: ["--r", $REPLICA_NUMBER, "--n", $TOTAL_REPLICA_NUMBER, "--f", $FAULTY_REPLICAS, "--p", $DISAGREEING_REPLICA, "--t", $EXECUTION_TIME, "--d", $NOTARIZATION_DELAY, "--broadcast_interval", "$BROADCAST_INTERVAL","--artifact_manager_polling_interval", "$ARTIFACT_MANAGER_POLLING_INTERVAL", "--port", $PORT]\n'
 
 with open("docker-compose.yml", "w") as file:
     file.writelines(contents)
 
 for peer in peers:
-    set_protocol_cmd = f'scp -i ./keys/{peer["key_file"]} ./docker-compose.yml ubuntu@{peer["ip"]}:consensus_on_demand/docker-compose.yml'
+    set_protocol_cmd = f'scp -i ./keys/{peer["key_file"]} ./docker-compose.yml ubuntu@{peer["ip"]}:fast_internet_computer_consensus/docker-compose.yml'
     subprocess.run(set_protocol_cmd, shell=True)
 
 print("\nReplicas parameters set")
 
 processes = []
 for peer in peers:
-    start_replica_cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} "cd consensus_on_demand && docker compose up --build"'
+    start_replica_cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} "cd fast_internet_computer_consensus && docker compose up --build"'
     process = subprocess.Popen(start_replica_cmd, shell=True, stdout=subprocess.DEVNULL)
     processes.append(process)
 
@@ -209,6 +107,7 @@ for peer in peers:
     else:
         print("Peer " + peer["number"] + " not reachable")
 
+print ("\n Peer id collection terminated")
 for i,peer in enumerate(peers):
     remote_peers_addresses = ""
     for j,other_peer in enumerate(peers):
@@ -231,7 +130,7 @@ folder = f'{("FICC" if FICC else "ICC")}_{N}_{F}_{P}_{D}_{T}_{now}'
 subprocess.run(f'cd benchmark && mkdir {folder}', shell=True, stdout=subprocess.DEVNULL)
 
 for peer in peers:
-    get_benchmark_results_cmd = f'scp -i ./keys/{peer["key_file"]} ubuntu@{peer["ip"]}:consensus_on_demand/benchmark/benchmark_results.json benchmark/{("FICC" if FICC else "ICC")}_{N}_{F}_{P}_{D}_{T}_{now}/benchmark_results_{peer["number"]}.json'
+    get_benchmark_results_cmd = f'scp -i ./keys/{peer["key_file"]} ubuntu@{peer["ip"]}:fast_internet_computer_consensus/benchmark/benchmark_results.json benchmark/{("FICC" if FICC else "ICC")}_{N}_{F}_{P}_{D}_{T}_{now}/benchmark_results_{peer["number"]}.json'
     subprocess.run(get_benchmark_results_cmd, shell=True, stdout=subprocess.DEVNULL)
 
 print(f'\nResults written in folder benchmark/{folder}')

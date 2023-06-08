@@ -70,9 +70,9 @@ struct Opt {
     d: u64, // notary delay
     #[structopt(long, default_value = "56789")]
     port: u64,    // port which the peers listen for connections
-    #[structopt(name="broadcast_interval", long, default_value = "10")]
+    #[structopt(name="broadcast_interval", long, default_value = "100")]
     broadcast_interval: u64, // interval after which artifacts are broadcasted
-    #[structopt(name="artifact_manager_polling_interval", long, default_value = "20")]
+    #[structopt(name="artifact_manager_polling_interval", long, default_value = "200")]
     artifact_manager_polling_interval: u64, // periodic duration of `PollEvent` in milliseconds
 }
 
@@ -87,14 +87,14 @@ pub struct SubnetParams {
 }
 
 impl SubnetParams {
-    fn new(n: u8, f: u8, p: u8, cod: bool, d: u64, artifact_manager_polling_interval: u64) -> Self {
+    fn new(n: u8, f: u8, p: u8, cod: bool, d: u64, pi: u64) -> Self {
         Self {
             total_nodes_number: n,
             byzantine_nodes_number: f,
             disagreeing_nodes_number: p,
             consensus_on_demand: cod,
             artifact_delay: d,
-            artifact_manager_polling_interval,
+            artifact_manager_polling_interval: pi,
         }
     }
 }
@@ -120,7 +120,7 @@ async fn post_remote_peers_addresses(mut req: Request<String>, sender: Arc<RwLoc
 #[async_std::main]
 async fn main() -> Result<()> {
     let opt = Opt::from_args();
-    println!("Replica number: {} running FICC: {}, with F: {}, P: {}, notarization delay: {}, broadcast_interval: {}, and artifact manager polling interval: {}", opt.r, opt.cod, opt.f, opt.p, opt.d, opt. broadcast_interval, opt.artifact_manager_polling_interval);
+    println!("Replica number: {} running FICC: {}, with F: {}, P: {}, notarization delay: {}, broadcast_interval: {}, and artifact manager polling interval: {}", opt.r, opt.cod, opt.f, opt.p, opt.d, opt.broadcast_interval, opt.artifact_manager_polling_interval);
 
     let finalizations_times = Arc::new(RwLock::new(BTreeMap::<Height, Option<HeightMetrics>>::new()));
     let cloned_finalization_times = Arc::clone(&finalizations_times);
@@ -164,25 +164,25 @@ async fn main() -> Result<()> {
             let starting_time = system_time_now();
             let relative_duration = Duration::from_millis(opt.t * 1000);
             let absolute_end_time = get_absolute_end_time(starting_time, relative_duration);
-            let initation_end_time = starting_time +  Duration::from_millis(10 * 1000);
-            let mut initationPhase = true;
+            // let initation_end_time = starting_time +  Duration::from_millis(10 * 1000);
+            // let mut initation_phase = true;
             loop {
-                if initationPhase {
-                    let mut broadcast_interval = stream::interval(Duration::from_millis(opt.broadcast_interval*100));
-                    select! {
-                        _ = broadcast_interval.next().fuse() => {
-                            // prevent Mdns expiration event by periodically broadcasting keep alive messages to peers
-                            // if any locally generated artifact, broadcast it
-                            if my_peer.artifact_manager_started() {
-                                my_peer.broadcast_message();
-                            }
-                        },
-                        event = my_peer.get_next_event() => my_peer.match_event(event),
-                    }
-                    if system_time_now() > initation_end_time {
-                        initationPhase = false;
-                    }
-                } 
+                // if initationPhase {
+                //     let mut broadcast_interval = stream::interval(Duration::from_millis(opt.broadcast_interval*100));
+                //     select! {
+                //         _ = broadcast_interval.next().fuse() => {
+                //             // prevent Mdns expiration event by periodically broadcasting keep alive messages to peers
+                //             // if any locally generated artifact, broadcast it
+                //             if my_peer.artifact_manager_started() {
+                //                 my_peer.broadcast_message();
+                //             }
+                //         },
+                //         event = my_peer.get_next_event() => my_peer.match_event(event),
+                //     }
+                //     if system_time_now() > initation_end_time {
+                //         initationPhase = false;
+                //     }
+                // } 
                 if system_time_now() < absolute_end_time {
                     let mut broadcast_interval = stream::interval(Duration::from_millis(opt.broadcast_interval));
                     select! {
