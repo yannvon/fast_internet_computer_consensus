@@ -164,26 +164,26 @@ async fn main() -> Result<()> {
             let starting_time = system_time_now();
             let relative_duration = Duration::from_millis(opt.t * 1000);
             let absolute_end_time = get_absolute_end_time(starting_time, relative_duration);
-            // let initation_end_time = starting_time +  Duration::from_millis(10 * 1000);
-            // let mut initation_phase = true;
+            let initation_end_time = starting_time +  Duration::from_millis(200 * 1000);
+            let mut initation_phase = true;
             loop {
-                // if initationPhase {
-                //     let mut broadcast_interval = stream::interval(Duration::from_millis(opt.broadcast_interval*100));
-                //     select! {
-                //         _ = broadcast_interval.next().fuse() => {
-                //             // prevent Mdns expiration event by periodically broadcasting keep alive messages to peers
-                //             // if any locally generated artifact, broadcast it
-                //             if my_peer.artifact_manager_started() {
-                //                 my_peer.broadcast_message();
-                //             }
-                //         },
-                //         event = my_peer.get_next_event() => my_peer.match_event(event),
-                //     }
-                //     if system_time_now() > initation_end_time {
-                //         initationPhase = false;
-                //     }
-                // } 
-                if system_time_now() < absolute_end_time {
+                if initation_phase {
+                    let mut broadcast_interval = stream::interval(Duration::from_millis(opt.broadcast_interval*100));
+                    select! {
+                        _ = broadcast_interval.next().fuse() => {
+                            // prevent Mdns expiration event by periodically broadcasting keep alive messages to peers
+                            // if any locally generated artifact, broadcast it
+                            if my_peer.artifact_manager_started() {
+                                my_peer.broadcast_message();
+                            }
+                        },
+                        event = my_peer.get_next_event() => my_peer.match_event(event),
+                    }
+                    if system_time_now() > initation_end_time {
+                        initation_phase = false;
+                    }
+                } 
+                else if system_time_now() < absolute_end_time {
                     let mut broadcast_interval = stream::interval(Duration::from_millis(opt.broadcast_interval));
                     select! {
                         _ = broadcast_interval.next().fuse() => {
