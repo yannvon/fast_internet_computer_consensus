@@ -147,7 +147,7 @@ impl Notary {
     ) -> Option<NotarizationShare> {
         let height = proposal.content.value.height;
         let content: NotarizationShareContent = {
-            if self.subnet_params.consensus_on_demand {
+            if self.subnet_params.fast_internet_computer_consensus {
                 // CoD rule 1: first child of each block is acknowledged
                 let is_ack = pool
                 .get_notarization_shares(height)
@@ -157,7 +157,7 @@ impl Notary {
                         notarization_share_content_cod.block_parent_hash == proposal.content.value.parent   // filter out shares for blocks that do not have the same parent of the block being proposed
                     }
                     else {
-                        panic!("no notarization shares of ICC variant when consensus_on_demand parameter is true");
+                        panic!("no notarization shares of ICC variant when fast_internet_computer_consensus parameter is true");
                     }
                 })
                 .count() == 0; // set 'is_ack' to true if 'proposal' is the first child of its parent for which the local replica creates a notarization share, the latter is also an acknowledgement

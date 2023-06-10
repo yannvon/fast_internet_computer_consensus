@@ -90,7 +90,7 @@ pub struct SubnetParams {
     total_nodes_number: u8,
     byzantine_nodes_number: u8,
     disagreeing_nodes_number: u8,
-    consensus_on_demand: bool,
+    fast_internet_computer_consensus: bool,
     artifact_delay: u64,
     artifact_manager_polling_interval: u64,
 }
@@ -101,7 +101,7 @@ impl SubnetParams {
             total_nodes_number: n,
             byzantine_nodes_number: f,
             disagreeing_nodes_number: p,
-            consensus_on_demand: cod,
+            fast_internet_computer_consensus: cod,
             artifact_delay: d,
             artifact_manager_polling_interval: pi,
         }

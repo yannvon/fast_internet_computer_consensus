@@ -16,14 +16,14 @@ COPY --from=planner /replica/recipe.json recipe.json
 RUN cargo chef cook --recipe-path recipe.json
 # Build application
 COPY . .
-RUN cargo build
+RUN cargo build --release
 
 ### run the ficc replica
 FROM deps AS runner
 WORKDIR /replica
 # copy the ficc binary
-COPY --from=builder /replica/target/debug/consensus_on_demand .
+COPY --from=builder /replica/target/release/fast_internet_computer_consensus .
 
 EXPOSE 56789 56790
 
-ENTRYPOINT ["./consensus_on_demand"]
+ENTRYPOINT ["./fast_internet_computer_consensus"]

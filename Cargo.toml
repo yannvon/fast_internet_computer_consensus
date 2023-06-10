@@ -1,5 +1,5 @@
 [package]
-name = "consensus_on_demand"
+name = "fast_internet_computer_consensus"
 version = "0.1.0"
 edition = "2021"
 
