@@ -73,7 +73,6 @@ impl Acknowledger {
                                     latency: finalization_time,
                                     fp_finalization: FinalizationType::FP,
                                 };
-
                                 finalization_times
                                     .write()
                                     .unwrap()
