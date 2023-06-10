@@ -7,6 +7,44 @@ import matplotlib.pyplot as plt
 
 
 peers = [
+    # California     
+    {    
+        "number": "16",
+        "ip": "54.215.157.199",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    {
+        "number": "15",
+        "ip": "54.219.175.3",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Stockholm     
+    {    
+        "number": "14",
+        "ip": "16.170.203.144",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    {
+        "number": "13",
+        "ip": "16.171.0.154",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
     # Canada     
     {    
         "number": "12",
@@ -125,15 +163,15 @@ peers = [
 
 
 N = len(peers)
-F = 3
+F = 5
 P = 0
 T = 300 # Runtime
 D = 3000 # Notarization delay
 FICC = True
-BI=100
-PI=200
+BI=5
+PI=20
 BIRU=100
-RUT=100
+RUT=1
 
 UPDATE_REPO = False
 UPDATE_MAIN = False
@@ -219,8 +257,8 @@ for peer in peers:
         contents[5] = "NOTARIZATION_DELAY="+str(D)+"\n"
         contents[6] = "BROADCAST_INTERVAL="+str(BI)+"\n"
         contents[7] = "ARTIFACT_MANAGER_POLLING_INTERVAL="+str(PI)+"\n"
-        contents[6] = "BROADCAST_INTERVAL_RAMP_UP="+str(BIRU)+"\n"
-        contents[7] = "RAMP_UP_TIME="+str(RUT)+"\n"
+        contents[8] = "BROADCAST_INTERVAL_RAMP_UP="+str(BIRU)+"\n"
+        contents[9] = "RAMP_UP_TIME="+str(RUT)+"\n"
 
     with open("./.env.example", "w") as file:
         file.writelines(contents)
@@ -232,9 +270,9 @@ for peer in peers:
 with open("docker-compose.yml", "r") as file:
     contents = file.readlines()
     if FICC:
-        contents[8] = '    command: ["--cod", "--r", $REPLICA_NUMBER, "--n", $TOTAL_REPLICA_NUMBER, "--f", $FAULTY_REPLICAS, "--p", $DISAGREEING_REPLICA, "--t", $EXECUTION_TIME, "--d", $NOTARIZATION_DELAY, "--broadcast_interval", "$BROADCAST_INTERVAL","--artifact_manager_polling_interval", "$ARTIFACT_MANAGER_POLLING_INTERVAL", "--broadcast_interval_ramp_up", "$BROADCAST_INTERVAL_RAMP_UP","--ramp_up_time", "$RAMP_UP_TIME", "--port", $PORT]\n'
+        contents[8] = '    command: ["--cod", "--r", $REPLICA_NUMBER, "--n", $TOTAL_REPLICA_NUMBER, "--f", $FAULTY_REPLICAS, "--p", $DISAGREEING_REPLICA, "--t", $EXECUTION_TIME, "--d", $NOTARIZATION_DELAY, "--broadcast_interval", "$BROADCAST_INTERVAL","--artifact_manager_polling_interval", "$ARTIFACT_MANAGER_POLLING_INTERVAL", "--broadcast_interval_ramp_up", "$BROADCAST_INTERVAL_RAMP_UP", "--ramp_up_time", "$RAMP_UP_TIME", "--port", $PORT]\n'
     else:
-        contents[8] = '    command: ["--r", $REPLICA_NUMBER, "--n", $TOTAL_REPLICA_NUMBER, "--f", $FAULTY_REPLICAS, "--p", $DISAGREEING_REPLICA, "--t", $EXECUTION_TIME, "--d", $NOTARIZATION_DELAY, "--broadcast_interval", "$BROADCAST_INTERVAL","--artifact_manager_polling_interval", "$ARTIFACT_MANAGER_POLLING_INTERVAL", "--broadcast_interval_ramp_up", "$BROADCAST_INTERVAL_RAMP_UP","--ramp_up_time", "$RAMP_UP_TIME", "--port", $PORT]\n'
+        contents[8] = '    command: ["--r", $REPLICA_NUMBER, "--n", $TOTAL_REPLICA_NUMBER, "--f", $FAULTY_REPLICAS, "--p", $DISAGREEING_REPLICA, "--t", $EXECUTION_TIME, "--d", $NOTARIZATION_DELAY, "--broadcast_interval", "$BROADCAST_INTERVAL","--artifact_manager_polling_interval", "$ARTIFACT_MANAGER_POLLING_INTERVAL", "--broadcast_interval_ramp_up", "$BROADCAST_INTERVAL_RAMP_UP", "--ramp_up_time", "$RAMP_UP_TIME", "--port", $PORT]\n'
 
 with open("docker-compose.yml", "w") as file:
     file.writelines(contents)
@@ -380,7 +418,6 @@ def getResults():
     ax.set_xlabel("Round")
     ax.set_ylabel("Latency [s]")
     plotLatencies(plt.gca(), filled_iterations, filled_latencies, filled_finalization_types)
-    plt.show()
 
     printMetrics(
         average_latency,
@@ -389,6 +426,7 @@ def getResults():
         total_dk_finalizations,
         total_non_finalizations,
     )
+    plt.show()
 
 print("Displaying results for replica 1")
 
