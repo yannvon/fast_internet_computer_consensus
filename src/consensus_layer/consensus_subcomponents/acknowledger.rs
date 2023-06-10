@@ -17,7 +17,7 @@ use crate::{
         pool_reader::PoolReader,
     },
     crypto::Signed,
-    SubnetParams, HeightMetrics, FinalizationType,
+    FinalizationType, HeightMetrics, SubnetParams,
 };
 
 /// A finalization share is a multi-signature share on a finalization content.
@@ -26,15 +26,15 @@ use crate::{
 pub type FinalizationShare = Signed<FinalizationShareContent, u8>;
 
 pub struct Acknowledger {
-    node_id: u8,
+    //node_id: u8,
     subnet_params: SubnetParams,
 }
 
 impl Acknowledger {
     #[allow(clippy::too_many_arguments)]
-    pub fn new(node_id: u8, subnet_params: SubnetParams) -> Self {
+    pub fn new(_node_id: u8, subnet_params: SubnetParams) -> Self {
         Self {
-            node_id,
+            //node_id,
             subnet_params,
         }
     }
@@ -49,8 +49,8 @@ impl Acknowledger {
         let notarized_height = pool.get_notarized_height();
         // heights before the last finalized block do not need to be checked
         // check heights in which it is still possible for a block to be FP-finalized
-        // even if it was already notarized (happens if F > P) 
-        for height in finalized_height+1..=notarized_height+1 {
+        // even if it was already notarized (happens if F > P)
+        for height in finalized_height + 1..=notarized_height + 1 {
             let notarization_shares = pool.get_notarization_shares(height);
             let grouped_shares = aggregate(notarization_shares);
             let fp_pair_at_height: Vec<ConsensusMessage> = grouped_shares
@@ -58,7 +58,7 @@ impl Acknowledger {
                 .filter_map(|(notarization_content, committee)| {
                     if let NotarizationShareContent::COD(notarization_content) = notarization_content {
                         // CoD rule 2: acknowledge (FP-finalize) only blocks whose parent is finalized
-                        if notarization_content.is_ack == true
+                        if notarization_content.is_ack
                             && committee.len()
                                 >= (self.subnet_params.total_nodes_number
                                     - self.subnet_params.disagreeing_nodes_number)
@@ -111,7 +111,7 @@ impl Acknowledger {
                 })
                 .flatten()
                 .collect();
-            if fp_pair_at_height.len() != 0 {
+            if !fp_pair_at_height.is_empty() {
                 return fp_pair_at_height;
             }
         }

@@ -28,6 +28,14 @@ pub struct InMemoryPoolSection<T: IntoInner<ConsensusMessage>> {
     pub indexes: Indexes,
 }
 
+impl<T: IntoInner<ConsensusMessage> + HasTimestamp + Clone + Debug> Default
+    for InMemoryPoolSection<T>
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<T: IntoInner<ConsensusMessage> + HasTimestamp + Clone + Debug> InMemoryPoolSection<T> {
     pub fn new() -> InMemoryPoolSection<T> {
         InMemoryPoolSection {
@@ -48,11 +56,13 @@ impl<T: IntoInner<ConsensusMessage> + HasTimestamp + Clone + Debug> InMemoryPool
                     self.insert(artifact);
                 }
                 PoolSectionOp::Remove(msg_id) => {
-                    if self.remove(&msg_id).is_none() {
-                        // println!("Error removing artifact {:?}", &msg_id);
-                    } else {
-                        // println!("Removing artifact");
-                    }
+                    //if
+                    self.remove(&msg_id);
+                    //.is_none() {
+                    // println!("Error removing artifact {:?}", &msg_id);
+                    //} else {
+                    // println!("Removing artifact");
+                    //}
                 }
             }
         }
@@ -66,7 +76,7 @@ impl<T: IntoInner<ConsensusMessage> + HasTimestamp + Clone + Debug> InMemoryPool
     }
 
     fn remove(&mut self, msg_id: &ConsensusMessageId) -> Option<T> {
-        self.remove_by_hash(&msg_id.hash.digest())
+        self.remove_by_hash(msg_id.hash.digest())
     }
 
     fn get_by_hashes<S: ConsensusMessageHashable>(&self, hashes: Vec<&CryptoHashOf<S>>) -> Vec<S> {
@@ -198,6 +208,12 @@ where
 pub struct ConsensusPoolImpl {
     validated: Box<InMemoryPoolSection<ValidatedConsensusArtifact>>,
     unvalidated: Box<InMemoryPoolSection<UnvalidatedConsensusArtifact>>,
+}
+
+impl Default for ConsensusPoolImpl {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl ConsensusPoolImpl {

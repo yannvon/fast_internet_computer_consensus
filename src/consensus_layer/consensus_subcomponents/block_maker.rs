@@ -14,6 +14,12 @@ use super::goodifier::block_is_good;
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub struct Payload {}
 
+impl Default for Payload {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Payload {
     pub fn new() -> Self {
         Self {}
@@ -74,36 +80,34 @@ impl BlockMaker {
         let (beacon, parent) =
             get_dependencies(pool, self.subnet_params.consensus_on_demand).unwrap();
         let height: u64 = parent.height + 1;
-        match self.get_block_maker_rank(height, &beacon, my_node_id) {
-            rank => {
-                if !already_proposed(pool, height, my_node_id)
-                    && !self.is_better_block_proposal_available(pool, height, rank)
-                    && is_time_to_make_block(
-                        pool,
-                        height,
-                        rank,
-                        self.time_source.as_ref(),
-                        my_node_id,
-                        self.subnet_params.artifact_delay,
-                    )
-                {
-                    let block_proposal = self
-                        .propose_block(pool, rank, parent)
-                        .map(|proposal| ConsensusMessage::BlockProposal(proposal));
-                    println!("\nCreated block proposal: {:?}", block_proposal);
-                    block_proposal
-                } else {
-                    None
-                }
-            }
+        let rank = self.get_block_maker_rank(height, &beacon, my_node_id);
+
+        if !already_proposed(pool, height, my_node_id)
+            && !self.is_better_block_proposal_available(pool, height, rank)
+            && is_time_to_make_block(
+                pool,
+                height,
+                rank,
+                self.time_source.as_ref(),
+                my_node_id,
+                self.subnet_params.artifact_delay,
+            )
+        {
+            let block_proposal = self
+                .propose_block(pool, rank, parent)
+                .map(ConsensusMessage::BlockProposal);
+            println!("\nCreated block proposal: {:?}", block_proposal);
+            block_proposal
+        } else {
+            None
         }
     }
 
-    fn get_block_maker_rank(&self, height: u64, beacon: &RandomBeacon, my_node_id: u8) -> u8 {
-        let rank =
-            ((height + my_node_id as u64 - 2) % self.subnet_params.total_nodes_number as u64) as u8;
+    fn get_block_maker_rank(&self, height: u64, _beacon: &RandomBeacon, my_node_id: u8) -> u8 {
+        //let rank =
+        ((height + my_node_id as u64 - 2) % self.subnet_params.total_nodes_number as u64) as u8
         // println!("Local rank for height {} is: {}", height, rank);
-        rank
+        //rank
     }
 
     /// Return true if the validated pool contains a better (lower ranked) block
@@ -138,8 +142,8 @@ impl BlockMaker {
     #[allow(clippy::too_many_arguments)]
     fn construct_block_proposal(
         &self,
-        pool: &PoolReader<'_>,
-        parent: Block,
+        _pool: &PoolReader<'_>,
+        _parent: Block,
         parent_hash: String,
         height: u64,
         rank: u8,
@@ -170,9 +174,10 @@ fn get_dependencies(
         .filter(|block| {
             if is_consensus_on_demand {
                 // CoD rule 3a: extend only "good" blocks
-                let is_good = block_is_good(pool, &block);
+                //let is_good =
+                block_is_good(pool, block)
                 // println!("Notarized block {:?} is good: {}", block, is_good);
-                is_good
+                //is_good
             } else {
                 true
             }

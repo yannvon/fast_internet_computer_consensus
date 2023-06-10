@@ -1,5 +1,5 @@
 use crate::artifact_manager::ProcessingResult;
-use crate::{SubnetParams, HeightMetrics};
+use crate::{HeightMetrics, SubnetParams};
 
 pub mod pool;
 use crate::consensus_layer::pool::ConsensusPoolImpl;
@@ -59,7 +59,7 @@ impl ConsensusProcessor {
         let (change_set, to_broadcast) = {
             let consensus_pool = self.consensus_pool.read().unwrap();
             self.client
-                .on_state_change(&*consensus_pool, finalization_times)
+                .on_state_change(&consensus_pool, finalization_times)
         };
         let changed = if !change_set.is_empty() {
             ProcessingResult::StateChanged
@@ -67,7 +67,7 @@ impl ConsensusProcessor {
             ProcessingResult::StateUnchanged
         };
 
-        if to_broadcast == true {
+        if to_broadcast {
             for change_action in change_set.iter() {
                 match change_action {
                     ChangeAction::AddToValidated(to_add) => {

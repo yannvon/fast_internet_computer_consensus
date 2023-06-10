@@ -28,7 +28,7 @@ impl NotarizationShareContentICC {
     pub fn new(
         block_height: Height,
         block_hash: CryptoHashOf<Block>,
-        is_ack: Option<bool>,
+        _is_ack: Option<bool>,
     ) -> Self {
         Self {
             height: block_height,
@@ -92,15 +92,15 @@ impl Notary {
         // therefore, we consider all proposals
         for proposal in get_proposals(pool, height) {
             let rank = proposal.content.value.rank;
-            if self.time_to_notarize(pool, height, rank) {
-                if !self.is_proposal_already_notarized_by_me(pool, &proposal) {
-                    if let Some(s) = self.notarize_block(pool, proposal) {
-                        // println!(
-                        //     "\nCreated notarization share: {:?} for proposal of rank: {:?}",
-                        //     s, rank
-                        // );
-                        notarization_shares.push(ConsensusMessage::NotarizationShare(s));
-                    }
+            if self.time_to_notarize(pool, height, rank)
+                && !self.is_proposal_already_notarized_by_me(pool, &proposal)
+            {
+                if let Some(s) = self.notarize_block(pool, proposal) {
+                    // println!(
+                    //     "\nCreated notarization share: {:?} for proposal of rank: {:?}",
+                    //     s, rank
+                    // );
+                    notarization_shares.push(ConsensusMessage::NotarizationShare(s));
                 }
             }
         }
@@ -110,7 +110,8 @@ impl Notary {
     /// Return the time since round start, if it is greater than required
     /// notarization delay for the given block rank, or None otherwise.
     fn time_to_notarize(&self, pool: &PoolReader<'_>, height: Height, rank: u8) -> bool {
-        let adjusted_notary_delay = get_adjusted_notary_delay(pool, height, rank, self.subnet_params.artifact_delay);
+        let adjusted_notary_delay =
+            get_adjusted_notary_delay(pool, height, rank, self.subnet_params.artifact_delay);
         if let Some(start_time) = pool.get_round_start_time(height) {
             let now = self.time_source.get_relative_time();
             return now >= start_time + adjusted_notary_delay;
@@ -120,10 +121,10 @@ impl Notary {
 
     /// Return true if this node has already published a notarization share
     /// for the given block proposal. Return false otherwise.
-    fn is_proposal_already_notarized_by_me<'a>(
+    fn is_proposal_already_notarized_by_me(
         &self,
         pool: &PoolReader<'_>,
-        proposal: &'a BlockProposal,
+        proposal: &BlockProposal,
     ) -> bool {
         let height = proposal.content.value.height;
         pool.get_notarization_shares(height)
@@ -145,10 +146,10 @@ impl Notary {
         proposal: Signed<Hashed<Block>, u8>,
     ) -> Option<NotarizationShare> {
         let height = proposal.content.value.height;
-        let mut content: NotarizationShareContent;
-        if self.subnet_params.consensus_on_demand == true {
-            // CoD rule 1: first child of each block is acknowledged
-            let is_ack = pool
+        let content: NotarizationShareContent = {
+            if self.subnet_params.consensus_on_demand {
+                // CoD rule 1: first child of each block is acknowledged
+                let is_ack = pool
                 .get_notarization_shares(height)
                 .filter(|s| s.signature == self.node_id)    // filter out shares not sent by local replica
                 .filter(|s| {
@@ -160,19 +161,20 @@ impl Notary {
                     }
                 })
                 .count() == 0; // set 'is_ack' to true if 'proposal' is the first child of its parent for which the local replica creates a notarization share, the latter is also an acknowledgement
-            content = NotarizationShareContent::COD(NotarizationShareContentCOD::new(
-                proposal.content.value.height,
-                CryptoHashOf::from(proposal.content.hash),
-                proposal.content.value.parent,
-                Some(is_ack),
-            ));
-        } else {
-            content = NotarizationShareContent::ICC(NotarizationShareContentICC::new(
-                proposal.content.value.height,
-                CryptoHashOf::from(proposal.content.hash),
-                None,
-            ));
-        }
+                NotarizationShareContent::COD(NotarizationShareContentCOD::new(
+                    proposal.content.value.height,
+                    CryptoHashOf::from(proposal.content.hash),
+                    proposal.content.value.parent,
+                    Some(is_ack),
+                ))
+            } else {
+                NotarizationShareContent::ICC(NotarizationShareContentICC::new(
+                    proposal.content.value.height,
+                    CryptoHashOf::from(proposal.content.hash),
+                    None,
+                ))
+            }
+        };
         let signature = self.node_id;
         Some(NotarizationShare { content, signature })
     }
@@ -188,6 +190,7 @@ fn get_proposals(pool: &PoolReader<'_>, h: Height) -> Vec<BlockProposal> {
 
 /// Return the validated block proposals with the lowest rank at height `h`, if
 /// there are any. Else return `None`.
+/*
 fn find_lowest_ranked_proposals(pool: &PoolReader<'_>, h: Height) -> Vec<BlockProposal> {
     let (_, best_proposals) = pool
         .pool()
@@ -208,14 +211,19 @@ fn find_lowest_ranked_proposals(pool: &PoolReader<'_>, h: Height) -> Vec<BlockPr
         );
     best_proposals
 }
-
+*/
 
 /// Calculate the required delay for notary based on the rank of block to
 /// notarize, adjusted by a multiplier depending the gap between finalized and
 /// notarized heights, by how far the certified height lags behind the finalized
 /// height, and by how far we have advanced beyond a summary block without
 /// creating a CUP.
-pub fn get_adjusted_notary_delay(pool: &PoolReader<'_>, height: Height, rank: u8, notarization_delay: u64) -> Duration {
+pub fn get_adjusted_notary_delay(
+    pool: &PoolReader<'_>,
+    _height: Height,
+    rank: u8,
+    notarization_delay: u64,
+) -> Duration {
     // We adjust regular delay based on the gap between finalization and
     // notarization to make it exponentially longer to keep the gap from growing too
     // big. This is because increasing delay leads to higher chance of notarizing
@@ -224,7 +232,6 @@ pub fn get_adjusted_notary_delay(pool: &PoolReader<'_>, height: Height, rank: u8
     let finalized_height = pool.get_finalized_height();
     let ranked_delay = notarization_delay as f32 * rank as f32;
     let finality_gap = (pool.get_notarized_height() - finalized_height) as i32;
-    let finality_adjusted_delay =
-        (ranked_delay * 1.5_f32.powi(finality_gap)) as u64;
+    let finality_adjusted_delay = (ranked_delay * 1.5_f32.powi(finality_gap)) as u64;
     Duration::from_millis(finality_adjusted_delay)
 }

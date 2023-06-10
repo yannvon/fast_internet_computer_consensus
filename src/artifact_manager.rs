@@ -1,5 +1,5 @@
 use crossbeam_channel::{Receiver, RecvTimeoutError, Sender};
-use std::thread::{Builder as ThreadBuilder, JoinHandle};
+use std::thread::Builder as ThreadBuilder;
 use std::{
     collections::BTreeMap,
     sync::{Arc, Mutex, RwLock},
@@ -35,7 +35,7 @@ pub struct ArtifactProcessorManager {
     // To send the process requests
     sender_incoming_request: Sender<ProcessRequest>,
     // Handle for the processing thread
-    handle: Option<JoinHandle<()>>,
+    //handle: Option<JoinHandle<()>>,
 }
 
 impl ArtifactProcessorManager {
@@ -60,7 +60,7 @@ impl ArtifactProcessorManager {
         let sender_incoming_request_cl = sender_incoming_request.clone();
         let pending_artifacts_cl = pending_artifacts.clone();
 
-        let handle = ThreadBuilder::new()
+        ThreadBuilder::new()
             .spawn(move || {
                 Self::process_messages(
                     pending_artifacts_cl,
@@ -78,7 +78,7 @@ impl ArtifactProcessorManager {
         Self {
             pending_artifacts,
             sender_incoming_request,
-            handle: Some(handle),
+            //handle: Some(handle),
         }
     }
 
@@ -93,7 +93,8 @@ impl ArtifactProcessorManager {
         subnet_params: SubnetParams,
     ) {
         // println!("Incoming artifacts thread loop started");
-        let recv_timeout = std::time::Duration::from_millis(subnet_params.artifact_manager_polling_interval);
+        let recv_timeout =
+            std::time::Duration::from_millis(subnet_params.artifact_manager_polling_interval);
         loop {
             let ret = receiver_incoming_request.recv_timeout(recv_timeout);
 

@@ -29,7 +29,7 @@ pub struct GoodnessArtifact {
 }
 
 pub struct Goodifier {
-    node_id: u8,
+    _node_id: u8,
     subnet_params: SubnetParams,
     time_source: Arc<dyn TimeSource>,
 }
@@ -37,7 +37,7 @@ pub struct Goodifier {
 impl Goodifier {
     pub fn new(node_id: u8, subnet_params: SubnetParams, time_source: Arc<dyn TimeSource>) -> Self {
         Self {
-            node_id,
+            _node_id: node_id,
             subnet_params,
             time_source,
         }

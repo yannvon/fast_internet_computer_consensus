@@ -44,23 +44,14 @@ impl<'a> PoolReader<'a> {
 
     pub fn count_acknowledgements_at_height(&self, h: Height) -> usize {
         self.get_notarization_shares(h)
-            .filter(|share| {
-                if let NotarizationShareContent::COD(_) = share.content {
-                    true
-                } else {
-                    false
-                }
-            })
+            .filter(|share| matches!(share.content, NotarizationShareContent::COD(_)))
             .count()
     }
 
     // Get max height of valid notarized blocks.
     pub fn get_notarized_height(&self) -> Height {
         let notarized_height = self.pool.validated().notarization().max_height();
-        match notarized_height {
-            Some(height) => height,
-            None => 0,
-        }
+        notarized_height.unwrap_or(0)
     }
 
     /// Get all valid finalization shares in the given height range, inclusive.
@@ -118,6 +109,7 @@ impl<'a> PoolReader<'a> {
         )
     }
 
+    /*
     pub fn print_goodness_artifacts_at_height(&self, height: Height) {
         for good in self
             .pool
@@ -128,12 +120,14 @@ impl<'a> PoolReader<'a> {
             // println!("{:?}", good);
         }
     }
+    */
 
     pub fn get_goodness_height(&self) -> Height {
-        match self.pool.validated().goodness_artifact().max_height() {
-            None => 0,
-            Some(height) => height,
-        }
+        self.pool
+            .validated()
+            .goodness_artifact()
+            .max_height()
+            .unwrap_or(0)
     }
 
     pub fn get_latest_goodness_artifact_for_parent(
@@ -154,10 +148,8 @@ impl<'a> PoolReader<'a> {
         parent_hash: &String,
         height: Height,
     ) -> bool {
-        match self.get_latest_goodness_artifact_for_parent(parent_hash, height) {
-            Some(_) => true,
-            None => false,
-        }
+        self.get_latest_goodness_artifact_for_parent(parent_hash, height)
+            .is_some()
     }
 
     /// Get the round start time of a given height, which is the max timestamp
@@ -174,7 +166,7 @@ impl<'a> PoolReader<'a> {
                 .min()
         };
         let prev_height = height - 1;
-        get_notarization_time(prev_height).map(|notarization_time| notarization_time)
+        get_notarization_time(prev_height) //.map(|notarization_time| notarization_time)
     }
 
     pub fn get_finalization_time(&self, height: Height) -> Option<Duration> {

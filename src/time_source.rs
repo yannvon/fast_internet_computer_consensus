@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
-use std::time::Duration;
 use std::sync::RwLock;
+use std::time::Duration;
 use std::time::SystemTime;
 
 /// Time since UNIX_EPOCH (in nanoseconds). Just like 'std::time::Instant' or
@@ -45,6 +45,12 @@ pub trait TimeSource: Send + Sync {
 /// Time source using the system time.
 pub struct SysTimeSource {
     current_time: RwLock<Time>,
+}
+
+impl Default for SysTimeSource {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 /// Provide real system time as a [TimeSource].

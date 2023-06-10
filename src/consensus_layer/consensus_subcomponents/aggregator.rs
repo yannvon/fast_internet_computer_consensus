@@ -13,7 +13,7 @@ use crate::consensus_layer::consensus_subcomponents::goodifier::{
 use crate::consensus_layer::height_index::Height;
 use crate::consensus_layer::{artifacts::ConsensusMessage, pool_reader::PoolReader};
 use crate::crypto::{CryptoHashOf, Signed};
-use crate::{SubnetParams, HeightMetrics, FinalizationType};
+use crate::{FinalizationType, HeightMetrics, SubnetParams};
 
 use super::block_maker::Block;
 use super::notary::{NotarizationShareContent, NotarizationShareContentCOD};
@@ -55,14 +55,14 @@ impl FinalizationContent {
 pub type Finalization = Signed<FinalizationContent, u8>;
 
 pub struct ShareAggregator {
-    node_id: u8,
+    //node_id: u8,
     subnet_params: SubnetParams,
 }
 
 impl ShareAggregator {
-    pub fn new(node_id: u8, subnet_params: SubnetParams) -> Self {
+    pub fn new(_node_id: u8, subnet_params: SubnetParams) -> Self {
         Self {
-            node_id,
+            //node_id,
             subnet_params,
         }
     }
@@ -86,10 +86,11 @@ impl ShareAggregator {
         let height = pool.get_notarized_height() + 1;
         let notarization_shares = pool.get_notarization_shares(height);
         let grouped_shares_separated_from_acks = aggregate(notarization_shares); // in case CoD is used, shares and acks for the same proposal are in two separate entries
-        // println!("Grouped shares separated from acks {:?}", grouped_shares_separated_from_acks);
+                                                                                 // println!("Grouped shares separated from acks {:?}", grouped_shares_separated_from_acks);
         let grouped_shares = group_shares_and_acks(grouped_shares_separated_from_acks);
         // println!("Grouped shares: {:?}", grouped_shares);
-        let notarizations = grouped_shares
+        //let notarizations =
+        grouped_shares
             .into_iter()
             .filter_map(|(notary_content, shares)| {
                 let notary_content = match notary_content {
@@ -117,7 +118,7 @@ impl ShareAggregator {
                         match block_is_good(pool, &block.expect("block must be in pool")) {
                             true => {
                                 // println!("\nNotarization of block with hash: {} at height {} by committee: {:?}", notary_content.block.get_ref(), notary_content.height, shares);
-                                Some(notary_content.clone())
+                                Some(notary_content)
                             }
                             false => None,
                         }
@@ -138,9 +139,9 @@ impl ShareAggregator {
                     })
                 })
             })
-            .collect();
+            .collect()
         // println!("Notarizations: {:?}", notarizations);
-        notarizations
+        //notarizations
     }
 
     /// Attempt to construct `Finalization`s

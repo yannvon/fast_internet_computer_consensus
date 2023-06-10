@@ -1,6 +1,6 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::{marker::PhantomData, hash::Hash};
+use std::{hash::Hash, marker::PhantomData};
 
 // Signed contains the signed content and its signature.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -19,12 +19,13 @@ pub struct Hashed<T> {
 }
 
 impl<T> Hashed<T> {
-    pub fn new(artifact: T) -> Self 
-    where T: Serialize 
+    pub fn new(artifact: T) -> Self
+    where
+        T: Serialize,
     {
         Self {
             hash: Hashed::crypto_hash(&artifact),
-            value: artifact
+            value: artifact,
         }
     }
 
@@ -33,13 +34,14 @@ impl<T> Hashed<T> {
         &self.hash
     }
 
-    pub fn crypto_hash(artifact: &T) -> CryptoHash 
-    where T: Serialize
+    pub fn crypto_hash(artifact: &T) -> CryptoHash
+    where
+        T: Serialize,
     {
         let payload = serde_json::json!(artifact);
         let mut hasher = Sha256::new();
         hasher.update(payload.to_string().as_bytes());
-        hex::encode(hasher.finalize().as_slice().to_owned())
+        hex::encode(hasher.finalize().as_slice())
     }
 }
 

@@ -1,4 +1,5 @@
-use async_std::{fs::File, io, task, stream};
+use async_std::{fs::File, stream, task};
+use crossbeam_channel::Sender;
 use futures::{
     future::FutureExt,
     prelude::{stream::StreamExt, *},
@@ -6,15 +7,15 @@ use futures::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::to_string;
-use time_source::Time;
 use std::{
     collections::BTreeMap,
     sync::{Arc, RwLock},
-    time::Duration, thread,
+    thread,
+    time::Duration,
 };
-use crossbeam_channel::{Receiver, Sender};
 use structopt::StructOpt;
 use tide::{Body, Request, Response, Result};
+use time_source::Time;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 enum FinalizationType {
@@ -44,7 +45,7 @@ pub mod network_layer;
 use crate::{
     consensus_layer::height_index::Height,
     network_layer::Peer,
-    time_source::{get_absolute_end_time, system_time_now}
+    time_source::{get_absolute_end_time, system_time_now},
 };
 
 pub mod artifact_manager;
@@ -69,16 +70,19 @@ struct Opt {
     #[structopt(long, default_value = "500")]
     d: u64, // notary delay
     #[structopt(long, default_value = "56789")]
-    port: u64,    // port which the peers listen for connections
-    #[structopt(name="broadcast_interval", long, default_value = "100")]
+    port: u64, // port which the peers listen for connections
+    #[structopt(name = "broadcast_interval", long, default_value = "100")]
     broadcast_interval: u64, // interval after which artifacts are broadcasted
-    #[structopt(name="artifact_manager_polling_interval", long, default_value = "200")]
+    #[structopt(
+        name = "artifact_manager_polling_interval",
+        long,
+        default_value = "200"
+    )]
     artifact_manager_polling_interval: u64, // periodic duration of `PollEvent` in milliseconds
-    #[structopt(name="broadcast_interval_ramp_up", long, default_value = "200")]
+    #[structopt(name = "broadcast_interval_ramp_up", long, default_value = "200")]
     broadcast_interval_ramp_up: u64, // interval after which artifacts are broadcasted during ramp up in milliseconds
-    #[structopt(name="ramp_up_time", long, default_value = "100")]
+    #[structopt(name = "ramp_up_time", long, default_value = "100")]
     ramp_up_time: u64, // time to ramp up replica in seconds
-    
 }
 
 #[derive(Clone)]
@@ -113,7 +117,10 @@ async fn get_local_peer_id(req: Request<String>) -> Result {
     Ok(res)
 }
 
-async fn post_remote_peers_addresses(mut req: Request<String>, sender: Arc<RwLock<Sender<String>>>) -> Result {
+async fn post_remote_peers_addresses(
+    mut req: Request<String>,
+    sender: Arc<RwLock<Sender<String>>>,
+) -> Result {
     let addresses = req.body_string().await?;
     sender.write().unwrap().send(addresses).unwrap();
     let res = Response::builder(200)
@@ -127,7 +134,8 @@ async fn main() -> Result<()> {
     let opt = Opt::from_args();
     println!("Replica number: {} running FICC: {}, with F: {}, P: {}, notarization delay: {}, broadcast_interval: {}, and artifact manager polling interval: {}", opt.r, opt.cod, opt.f, opt.p, opt.d, opt.broadcast_interval, opt.artifact_manager_polling_interval);
 
-    let finalizations_times = Arc::new(RwLock::new(BTreeMap::<Height, Option<HeightMetrics>>::new()));
+    let finalizations_times =
+        Arc::new(RwLock::new(BTreeMap::<Height, Option<HeightMetrics>>::new()));
     let cloned_finalization_times = Arc::clone(&finalizations_times);
 
     let mut my_peer = Peer::new(
@@ -139,27 +147,25 @@ async fn main() -> Result<()> {
             opt.p,
             opt.cod,
             opt.d,
-            opt.artifact_manager_polling_interval
+            opt.artifact_manager_polling_interval,
         ),
         "gossip_blocks",
         cloned_finalization_times,
-    ).await;
+    )
+    .await;
 
     // Listen on all available interfaces at port specified in opt.port
     my_peer.listen_for_dialing();
     let local_peer_id = my_peer.id.to_string();
 
-    let (sender_peers_addresses, receiver_peers_addresses) = 
-    crossbeam_channel::unbounded::<String>();
+    let (sender_peers_addresses, receiver_peers_addresses) =
+        crossbeam_channel::unbounded::<String>();
 
     thread::spawn(move || {
         let mut peers_addresses = String::new();
         println!("Waiting to receive peers addresses...");
-        match receiver_peers_addresses.recv() {
-            Ok(addresses) => {
-                peers_addresses.push_str(&addresses);
-            },
-            Err(_) => (),
+        if let Ok(addresses) = receiver_peers_addresses.recv() {
+            peers_addresses.push_str(&addresses);
         }
         println!("Received peers addresses: {}", peers_addresses);
 
@@ -169,11 +175,12 @@ async fn main() -> Result<()> {
             let starting_time = system_time_now();
             let relative_duration = Duration::from_millis(opt.t * 1000);
             let absolute_end_time = get_absolute_end_time(starting_time, relative_duration);
-            let initation_end_time = starting_time +  Duration::from_millis(opt.ramp_up_time * 1000);
+            let initation_end_time = starting_time + Duration::from_millis(opt.ramp_up_time * 1000);
             let mut initation_phase = true;
             loop {
                 if initation_phase {
-                    let mut broadcast_interval = stream::interval(Duration::from_millis(opt.broadcast_interval_ramp_up));
+                    let mut broadcast_interval =
+                        stream::interval(Duration::from_millis(opt.broadcast_interval_ramp_up));
                     select! {
                         _ = broadcast_interval.next().fuse() => {
                             // prevent Mdns expiration event by periodically broadcasting keep alive messages to peers
@@ -187,9 +194,9 @@ async fn main() -> Result<()> {
                     if system_time_now() > initation_end_time {
                         initation_phase = false;
                     }
-                } 
-                else if system_time_now() < absolute_end_time {
-                    let mut broadcast_interval = stream::interval(Duration::from_millis(opt.broadcast_interval));
+                } else if system_time_now() < absolute_end_time {
+                    let mut broadcast_interval =
+                        stream::interval(Duration::from_millis(opt.broadcast_interval));
                     select! {
                         _ = broadcast_interval.next().fuse() => {
                             // prevent Mdns expiration event by periodically broadcasting keep alive messages to peers
@@ -207,7 +214,7 @@ async fn main() -> Result<()> {
                     };
 
                     let encoded = to_string(&benchmark_result).unwrap();
-                    let mut file = File::create(format!("./benchmark/benchmark_results.json"))
+                    let mut file = File::create("./benchmark/benchmark_results.json".to_string())
                         .await
                         .unwrap();
                     file.write_all(encoded.as_bytes()).await.unwrap();
@@ -221,15 +228,16 @@ async fn main() -> Result<()> {
 
     let mut app = tide::with_state(local_peer_id);
 
-    app.at("/local_peer_id")
-        .get(get_local_peer_id);
+    app.at("/local_peer_id").get(get_local_peer_id);
 
-    let arc_sender_peers_addresses: Arc<RwLock<Sender<String>>> = Arc::new(RwLock::new(sender_peers_addresses));
+    let arc_sender_peers_addresses: Arc<RwLock<Sender<String>>> =
+        Arc::new(RwLock::new(sender_peers_addresses));
     let cloned_arc_sender_peers_addresses = Arc::clone(&arc_sender_peers_addresses);
-    app.at("/remote_peers_addresses")
-        .post(move |req| post_remote_peers_addresses(req, Arc::clone(&cloned_arc_sender_peers_addresses)));
+    app.at("/remote_peers_addresses").post(move |req| {
+        post_remote_peers_addresses(req, Arc::clone(&cloned_arc_sender_peers_addresses))
+    });
 
-    app.listen(format!("0.0.0.0:{}", opt.port+1)).await?;
+    app.listen(format!("0.0.0.0:{}", opt.port + 1)).await?;
 
     Ok(())
 }

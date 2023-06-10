@@ -3,7 +3,7 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-use crate::{time_source::TimeSource, SubnetParams, HeightMetrics};
+use crate::{time_source::TimeSource, HeightMetrics, SubnetParams};
 
 use super::{
     artifacts::{ChangeAction, ChangeSet, ConsensusMessage},
@@ -27,10 +27,10 @@ impl RoundRobin {
     // robin schedule. Return as soon as a call returns a non-empty ChangeSet.
     // Otherwise try calling the next one, and return empty ChangeSet if all
     // calls from the given list have been tried.
-    pub fn call_next<'a, T>(&self, calls: &[&'a dyn Fn() -> (Vec<T>, bool)]) -> (Vec<T>, bool) {
+    pub fn call_next<T>(&self, calls: &[&dyn Fn() -> (Vec<T>, bool)]) -> (Vec<T>, bool) {
         let mut result;
         let mut to_broadcast;
-        let mut index = self.index.borrow_mut();
+        let index = self.index.borrow_mut();
         let mut next = *index;
         loop {
             (result, to_broadcast) = calls[next]();
@@ -39,8 +39,8 @@ impl RoundRobin {
                 return (result, to_broadcast);
             };
         }
-        *index = next;
-        (result, to_broadcast)
+        //*index = next;
+        //(result, to_broadcast)
     }
 }
 
@@ -52,7 +52,7 @@ pub struct ConsensusImpl {
     notary: Notary,
     aggregator: ShareAggregator,
     validator: Validator,
-    time_source: Arc<dyn TimeSource>,
+    _time_source: Arc<dyn TimeSource>,
     schedule: RoundRobin,
     subnet_params: SubnetParams,
 }
@@ -83,7 +83,7 @@ impl ConsensusImpl {
             ),
             aggregator: ShareAggregator::new(replica_number, subnet_params.clone()),
             validator: Validator::new(Arc::clone(&time_source)),
-            time_source,
+            _time_source: time_source,
             schedule: RoundRobin::default(),
             subnet_params,
         }
@@ -117,15 +117,15 @@ impl ConsensusImpl {
         let pool_reader = PoolReader::new(pool);
 
         let acknowledge = || {
-            if self.subnet_params.consensus_on_demand == true {
+            if self.subnet_params.consensus_on_demand {
                 let change_set = add_all_to_validated(
                     self.acknowledger
                         .on_state_change(&pool_reader, Arc::clone(&finalization_times)),
                 );
                 let to_broadcast = true;
-                return (change_set, to_broadcast);
+                (change_set, to_broadcast)
             } else {
-                return (vec![], false);
+                (vec![], false)
             }
         };
 
@@ -157,18 +157,21 @@ impl ConsensusImpl {
             (change_set, to_broadcast)
         };
 
-        let validate = || self.validator.on_state_change(&pool_reader, Arc::clone(&finalization_times));
+        let validate = || {
+            self.validator
+                .on_state_change(&pool_reader, Arc::clone(&finalization_times))
+        };
 
         // must be the last component called as it can return the same artifact in multiple iterations
         // running it before the other components might starve them as we break out of the loop
         // as soon as a component returns an artifact
         let goodify = || {
-            if self.subnet_params.consensus_on_demand == true {
+            if self.subnet_params.consensus_on_demand {
                 let change_set = add_all_to_validated(self.goodifier.on_state_change(&pool_reader));
                 let to_broadcast = false;
-                return (change_set, to_broadcast);
+                (change_set, to_broadcast)
             } else {
-                return (vec![], false);
+                (vec![], false)
             }
         };
 
@@ -191,7 +194,7 @@ impl ConsensusImpl {
 fn add_all_to_validated(messages: Vec<ConsensusMessage>) -> ChangeSet {
     messages
         .into_iter()
-        .map(|msg| ChangeAction::AddToValidated(msg))
+        .map(ChangeAction::AddToValidated)
         .collect()
 }
 
