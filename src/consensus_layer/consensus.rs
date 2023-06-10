@@ -166,7 +166,7 @@ impl ConsensusImpl {
         // running it before the other components might starve them as we break out of the loop
         // as soon as a component returns an artifact
         let goodify = || {
-            if self.subnet_params.fast_internet_computer_consensus == true {
+            if self.subnet_params.fast_internet_computer_consensus {
                 let change_set = add_all_to_validated(self.goodifier.on_state_change(&pool_reader));
                 let to_broadcast = false;
                 (change_set, to_broadcast)

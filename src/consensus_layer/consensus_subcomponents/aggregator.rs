@@ -189,7 +189,7 @@ impl ShareAggregator {
                             height: finalization_content.height,
                             block: finalization_content.block,
                         },
-                        signature: 10, // committee signature
+                        signature: 50, // committee signature
                     })
                 })
             })

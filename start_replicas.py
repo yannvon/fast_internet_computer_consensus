@@ -5,6 +5,19 @@ import os
 import json
 import matplotlib.pyplot as plt
 
+F = 5
+P = 0
+T = 300 # Runtime
+D = 3000 # Notarization delay
+FICC = True
+BI=8
+PI=20
+BIRU=100
+RUT=1
+
+UPDATE_REPO = True
+UPDATE_MAIN = False
+
 
 peers = [
     # California     
@@ -161,21 +174,7 @@ peers = [
     },
 ]
 
-
 N = len(peers)
-F = 5
-P = 0
-T = 300 # Runtime
-D = 3000 # Notarization delay
-FICC = True
-BI=5
-PI=20
-BIRU=100
-RUT=1
-
-UPDATE_REPO = False
-UPDATE_MAIN = False
-
 
 if UPDATE_MAIN:
     print("\Cleaning repo on replicas")

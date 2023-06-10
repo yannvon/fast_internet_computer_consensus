@@ -100,7 +100,7 @@ impl Acknowledger {
                                         height: notarization_content.height,
                                         block: notarization_content.block,
                                     },
-                                    signature: 10, // committee signature
+                                    signature: 50, // committee signature
                                 }),
                             ]
                         })
