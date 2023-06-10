@@ -132,25 +132,24 @@ impl<'a> PoolReader<'a> {
 
     pub fn get_latest_goodness_artifact_for_parent(
         &self,
-        parent_hash: &String,
         children_height: Height,
     ) -> Option<GoodnessArtifact> {
         self.pool
             .validated()
             .goodness_artifact()
             .get_by_height(children_height)
-            .filter(|goodness_artifact| goodness_artifact.parent_hash.eq(parent_hash))
+            //.filter(|goodness_artifact| goodness_artifact.parent_hash.eq(parent_hash))
             .max_by(|first, second| first.timestamp.cmp(&second.timestamp))
     }
 
-    pub fn exists_goodness_artifact_for_parent(
+    /*pub fn exists_goodness_artifact_for_parent(
         &self,
         parent_hash: &String,
         height: Height,
     ) -> bool {
-        self.get_latest_goodness_artifact_for_parent(parent_hash, height)
+        self.get_latest_goodness_artifact_for_parent(height)
             .is_some()
-    }
+    }*/
 
     /// Get the round start time of a given height, which is the max timestamp
     /// of first notarization and random beacon of the previous height.

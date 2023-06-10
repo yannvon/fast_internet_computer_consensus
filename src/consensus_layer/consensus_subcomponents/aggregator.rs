@@ -104,8 +104,9 @@ impl ShareAggregator {
                     },
                 };
                 if shares.len()
-                    >= (self.subnet_params.total_nodes_number
-                        - self.subnet_params.byzantine_nodes_number) as usize
+                    > ((self.subnet_params.total_nodes_number
+                        + self.subnet_params.byzantine_nodes_number)
+                        / 2) as usize
                 {
                     if self.subnet_params.fast_internet_computer_consensus {
                         // println!("\nBlock with hash: {} received at least n-f notarization shares", notary_content.block.get_ref());
@@ -157,8 +158,9 @@ impl ShareAggregator {
             .into_iter()
             .filter_map(|(finalization_content, shares)| {
                 if shares.len()
-                    >= (self.subnet_params.total_nodes_number
-                        - self.subnet_params.byzantine_nodes_number) as usize
+                    > ((self.subnet_params.total_nodes_number
+                        + self.subnet_params.byzantine_nodes_number)
+                        / 2) as usize
                 {
                     println!(
                         "\nFinalization of block with hash: {} at height {} by committee: {:?}",

@@ -58,12 +58,13 @@ impl Acknowledger {
                 .filter_map(|(notarization_content, committee)| {
                     if let NotarizationShareContent::COD(notarization_content) = notarization_content {
                         // CoD rule 2: acknowledge (FP-finalize) only blocks whose parent is finalized
+                        // NEW RULES: FP-finalise always!
                         if notarization_content.is_ack
                             && committee.len()
                                 >= (self.subnet_params.total_nodes_number
                                     - self.subnet_params.disagreeing_nodes_number)
                                     as usize
-                            && is_parent_finalized(pool, &notarization_content)
+                            // && is_parent_finalized(pool, &notarization_content)
                         {
                             println!("\nAcknowledgement of block with hash: {} at height {} by committee: {:?}", notarization_content.block.get_ref(), notarization_content.height, committee);
                             if let Some(finalization_time) =
@@ -118,6 +119,7 @@ impl Acknowledger {
     }
 }
 
+/*
 fn is_parent_finalized(
     pool: &PoolReader<'_>,
     notarization_content: &NotarizationShareContentCOD,
@@ -132,3 +134,4 @@ fn is_parent_finalized(
         None => false,
     }
 }
+*/

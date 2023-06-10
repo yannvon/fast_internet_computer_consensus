@@ -8,7 +8,7 @@ use crate::{
     SubnetParams,
 };
 
-use super::{block_maker::Block, goodifier::block_is_good, notary::NotarizationShareContent};
+use super::{block_maker::Block, notary::NotarizationShareContent};
 
 /// FinalizationShareContent holds the values that are signed in a finalization share
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -30,7 +30,7 @@ pub type FinalizationShare = Signed<FinalizationShareContent, u8>;
 
 pub struct Finalizer {
     node_id: u8,
-    subnet_params: SubnetParams,
+    _subnet_params: SubnetParams,
     prev_finalized_height: RefCell<Height>,
 }
 
@@ -39,7 +39,7 @@ impl Finalizer {
     pub fn new(node_id: u8, subnet_params: SubnetParams) -> Self {
         Self {
             node_id,
-            subnet_params,
+            _subnet_params: subnet_params,
             prev_finalized_height: RefCell::new(0),
         }
     }
@@ -126,12 +126,14 @@ impl Finalizer {
             }
         };
 
+        /* NEW EDITS: we don't need this because every block comes with a goodness proof
         if self.subnet_params.fast_internet_computer_consensus {
             // CoD rule 3b: send finalization share only for "good" block
             if !block_is_good(pool, &notarized_block) {
                 return None;
             }
         }
+        */
 
         // If notarization shares exists created by this replica at height `h`
         // that sign a block different than `notarized_block`, do not finalize.
