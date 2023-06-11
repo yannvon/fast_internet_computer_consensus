@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 
 F = 2
 P = 0
-T = 300 # Runtime
-D = 30000 # Rank delay
+T = 100 # Runtime
+D = 3000 # Rank delay
 FICC = True
 BI=10
 PI=10
@@ -23,7 +23,7 @@ peers = [
     # Singapore
     {
         "number": "7",
-        "ip": "13.212.215.172",
+        "ip": "13.212.1.63",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -33,7 +33,7 @@ peers = [
     # N. Cali
     {    
         "number": "6",
-        "ip": "54.193.160.120",
+        "ip": "54.176.251.110",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -42,7 +42,7 @@ peers = [
     },
     {
         "number": "5",
-        "ip": "3.101.126.92",
+        "ip": "52.53.218.46",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -51,7 +51,7 @@ peers = [
     },
     {    
         "number": "4",
-        "ip": "54.183.179.180",
+        "ip": "54.193.7.226",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -60,7 +60,7 @@ peers = [
     },
     {
         "number": "3",
-        "ip": "54.193.143.187",
+        "ip": "13.56.252.162",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -69,7 +69,7 @@ peers = [
     },
     {
         "number": "2",
-        "ip": "54.176.113.109",
+        "ip": "54.177.117.232",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -78,7 +78,7 @@ peers = [
     },
     {
         "number": "1",
-        "ip": "54.67.32.43",
+        "ip": "54.176.68.98",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
