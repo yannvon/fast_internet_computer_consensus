@@ -154,6 +154,8 @@ impl<'a> PoolReader<'a> {
     /// Get the round start time of a given height, which is the max timestamp
     /// of first notarization and random beacon of the previous height.
     /// Return None if a timestamp is not found.
+    /// This is somehwat unfavorable to FICC, since a round only starts with goodness of
+    /// a notarized block. However, this upper bound makes for a good comparison still.
     pub fn get_round_start_time(&self, height: Height) -> Option<Time> {
         let validated = self.pool.validated();
 
