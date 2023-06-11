@@ -5,21 +5,176 @@ import os
 import json
 import matplotlib.pyplot as plt
 
-F = 2
-P = 0
-T = 100 # Runtime
-D = 3000 # Rank delay
+F = 3
+P = 3
+T = 300 # Rtuntime
+D = 5000 # Rank delay
 FICC = True
 BI=10
-PI=10
+PI=20
 BIRU=100
 RUT=1
 
-UPDATE_REPO = True
+UPDATE_REPO = False
+commit = "dc45e730269b1a15"
 UPDATE_MAIN = False
 
-
 peers = [
+    # Sao Paolo
+    {
+        "number": "16",
+        "ip": "18.230.184.137",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    {
+        "number": "15",
+        "ip": "18.228.173.151",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Frankfurt
+    {
+        "number": "14",
+        "ip": "3.64.61.85",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    {
+        "number": "13",
+        "ip": "3.69.255.234",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Canada
+    {
+        "number": "12",
+        "ip": "3.99.247.34",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    {
+        "number": "11",
+        "ip": "3.99.249.80",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Seoul
+    {
+        "number": "10",
+        "ip": "3.35.47.10",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    {
+        "number": "9",
+        "ip": "3.34.127.246",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Singapore
+    {
+        "number": "8",
+        "ip": "13.212.113.53",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    {
+        "number": "7",
+        "ip": "54.251.209.251",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Mumbai
+    {    
+        "number": "6",
+        "ip": "65.0.108.54",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    {
+        "number": "5",
+        "ip": "65.1.110.172",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Cali
+    {    
+        "number": "4",
+        "ip": "3.101.60.32",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    {
+        "number": "3",
+        "ip": "13.56.229.138",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Virgina
+    {
+        "number": "2",
+        "ip": "3.87.239.126",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    {
+        "number": "1",
+        "ip": "3.86.116.119",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+]
+
+peers1 = [
     # Singapore
     {
         "number": "7",
@@ -141,12 +296,13 @@ if UPDATE_REPO:
         process = subprocess.Popen(clone_repo_cmd, shell=True)
         process.wait()
 
+    
     print("\nRepo cloned on replicas")
 
     processes = []
     for peer in peers:
         print("\nBuilding container for replica", peer["number"])
-        build_container_cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'cd fast_internet_computer_consensus && docker compose build\''
+        build_container_cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'cd fast_internet_computer_consensus && git checkout {commit} && docker compose build\''
         process = subprocess.Popen(build_container_cmd, shell=True, stdout=subprocess.DEVNULL)
         processes.append(process)
 
