@@ -8,7 +8,7 @@ use super::{
         aggregator::{Finalization, Notarization},
         block_maker::BlockProposal,
         finalizer::FinalizationShare,
-        goodifier::GoodnessArtifact,
+        goodifier::{GoodnessArtifact, IMadeABlockArtifact},
         notary::{NotarizationShare, NotarizationShareContent},
     },
 };
@@ -86,6 +86,7 @@ pub struct Indexes {
     pub finalization_share: HeightIndex<CryptoHashOf<FinalizationShare>>,
     pub finalization: HeightIndex<CryptoHashOf<Finalization>>,
     pub goodness_artifact: HeightIndex<CryptoHashOf<GoodnessArtifact>>,
+    pub i_made_a_block_artifact: HeightIndex<CryptoHashOf<IMadeABlockArtifact>>,
 }
 
 #[allow(clippy::new_without_default)]
@@ -98,6 +99,7 @@ impl Indexes {
             finalization_share: HeightIndex::new(),
             finalization: HeightIndex::new(),
             goodness_artifact: HeightIndex::new(),
+            i_made_a_block_artifact: HeightIndex::new(),
         }
     }
 
@@ -126,6 +128,9 @@ impl Indexes {
             ConsensusMessage::GoodnessArtifact(artifact) => self
                 .goodness_artifact
                 .insert(artifact.children_height, &CryptoHashOf::from(hash)),
+            ConsensusMessage::IMadeABlockArtifact(artifact) => self
+                .i_made_a_block_artifact
+                .insert(artifact.block_height, &CryptoHashOf::from(hash)),
         };
     }
 
@@ -154,6 +159,9 @@ impl Indexes {
             ConsensusMessage::GoodnessArtifact(artifact) => self
                 .goodness_artifact
                 .remove(artifact.children_height, &CryptoHashOf::from(hash)),
+            ConsensusMessage::IMadeABlockArtifact(artifact) => self
+                .i_made_a_block_artifact
+                .remove(artifact.block_height, &CryptoHashOf::from(hash)),
         };
     }
 }
@@ -225,6 +233,12 @@ impl SelectIndex for CryptoHashOf<FinalizationShare> {
 impl SelectIndex for CryptoHashOf<GoodnessArtifact> {
     fn select_index(indexes: &Indexes) -> &HeightIndex<Self> {
         &indexes.goodness_artifact
+    }
+}
+
+impl SelectIndex for CryptoHashOf<IMadeABlockArtifact> {
+    fn select_index(indexes: &Indexes) -> &HeightIndex<Self> {
+        &indexes.i_made_a_block_artifact
     }
 }
 

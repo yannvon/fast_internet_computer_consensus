@@ -27,6 +27,12 @@ pub struct GoodnessArtifact {
     pub timestamp: Time,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+pub struct IMadeABlockArtifact {
+    pub block_height: Height,
+    pub timestamp: Time,
+}
+
 pub struct Goodifier {
     _node_id: u8,
     subnet_params: SubnetParams,

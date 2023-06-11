@@ -152,7 +152,7 @@ impl ConsensusImpl {
         };
 
         let make_block = || {
-            let change_set = add_to_validated(self.block_maker.on_state_change(&pool_reader));
+            let change_set = add_all_to_validated(self.block_maker.on_state_change(&pool_reader));
             let to_broadcast = true;
             (change_set, to_broadcast)
         };
@@ -197,8 +197,9 @@ fn add_all_to_validated(messages: Vec<ConsensusMessage>) -> ChangeSet {
         .map(ChangeAction::AddToValidated)
         .collect()
 }
-
+/*
 fn add_to_validated(msg: Option<ConsensusMessage>) -> ChangeSet {
     msg.map(|msg| ChangeAction::AddToValidated(msg).into())
         .unwrap_or_default()
 }
+*/

@@ -3,9 +3,12 @@ use std::{sync::Arc, time::Duration};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    consensus_layer::{artifacts::ConsensusMessage, height_index::Height, pool_reader::PoolReader},
+    consensus_layer::{
+        artifacts::ConsensusMessage, consensus_subcomponents::goodifier::IMadeABlockArtifact,
+        height_index::Height, pool_reader::PoolReader,
+    },
     crypto::{Hashed, Signed},
-    time_source::TimeSource,
+    time_source::{system_time_now, TimeSource},
     SubnetParams,
 };
 
@@ -74,7 +77,7 @@ impl BlockMaker {
         }
     }
 
-    pub fn on_state_change(&self, pool: &PoolReader<'_>) -> Option<ConsensusMessage> {
+    pub fn on_state_change(&self, pool: &PoolReader<'_>) -> Vec<ConsensusMessage> {
         // println!("\n########## Block maker ##########");
         let my_node_id = self.node_id;
         let (beacon, parent) =
@@ -97,9 +100,20 @@ impl BlockMaker {
                 .propose_block(pool, rank, parent)
                 .map(ConsensusMessage::BlockProposal);
             println!("\nCreated block proposal: {:?}", block_proposal);
-            block_proposal
+            if block_proposal.is_some() {
+                let block_proposed_artifact = IMadeABlockArtifact {
+                    block_height: height,
+                    timestamp: system_time_now(),
+                };
+                vec![
+                    block_proposal.unwrap(),
+                    ConsensusMessage::IMadeABlockArtifact(block_proposed_artifact),
+                ]
+            } else {
+                vec![]
+            }
         } else {
-            None
+            vec![]
         }
     }
 
@@ -219,14 +233,12 @@ fn is_time_to_make_block(
     node_id: u8,
     proposer_delay: u64,
 ) -> bool {
-    let block_maker_delay = match get_block_maker_delay(rank, proposer_delay) {
-        Some(delay) => delay,
-        _ => return false,
-    };
+    let block_maker_delay = get_block_maker_delay(rank, proposer_delay);
+    let just_make_sure_omg = Duration::from_secs(60);
     match pool.get_round_start_time(height) {
         Some(start_time) => {
             let current_time = time_source.get_relative_time();
-            if current_time >= start_time + block_maker_delay {
+            if current_time + just_make_sure_omg >= start_time + block_maker_delay {
                 return true;
             }
             false
@@ -243,8 +255,12 @@ fn is_time_to_make_block(
 
 /// Calculate the required delay for block making based on the block maker's
 /// rank.
-fn get_block_maker_delay(rank: u8, proposer_delay: u64) -> Option<Duration> {
-    Some(Duration::from_millis(proposer_delay) * rank as u32)
+fn get_block_maker_delay(rank: u8, proposer_delay: u64) -> Duration {
+    if rank == 0 {
+        Duration::from_millis(0)
+    } else {
+        (Duration::from_millis(proposer_delay) * rank as u32) + Duration::from_secs(60)
+    }
 }
 
 /// Return the validated block proposals with the lowest rank at height `h`, if

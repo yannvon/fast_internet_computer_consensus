@@ -3,7 +3,7 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-use super::{finalizer::FinalizationShareContent, notary::NotarizationShareContentCOD};
+use super::finalizer::FinalizationShareContent; //, notary::NotarizationShareContentCOD};
 use crate::{
     consensus_layer::{
         artifacts::ConsensusMessage,

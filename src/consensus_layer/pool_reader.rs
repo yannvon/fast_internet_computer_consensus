@@ -11,7 +11,7 @@ use super::{
     consensus_subcomponents::{
         block_maker::{Block, BlockProposal},
         finalizer::FinalizationShare,
-        goodifier::GoodnessArtifact,
+        goodifier::{GoodnessArtifact, IMadeABlockArtifact},
         notary::{NotarizationShare, NotarizationShareContent},
     },
     height_index::{Height, HeightRange},
@@ -171,9 +171,20 @@ impl<'a> PoolReader<'a> {
     }
 
     pub fn get_finalization_time(&self, height: Height) -> Option<Duration> {
-        if let Some(round_start_time) = self.get_round_start_time(height) {
-            let current_time = system_time_now();
-            let finalization_time = current_time - round_start_time;
+        let current_time = system_time_now();
+        let i_produced = self
+            .pool
+            .validated()
+            .i_made_a_block_artifact()
+            .get_by_height(height)
+            .next()
+            .unwrap_or(IMadeABlockArtifact {
+                block_height: height,
+                timestamp: current_time,
+            });
+
+        if let Some(_round_start_time) = self.get_round_start_time(height) {
+            let finalization_time = current_time - i_produced.timestamp;
             // println!("Time to finalize block: {:?}", finalization_time);
             return Some(finalization_time);
         }

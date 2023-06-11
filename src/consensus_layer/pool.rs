@@ -14,7 +14,7 @@ use super::{
         aggregator::{Finalization, Notarization},
         block_maker::{Block, BlockProposal},
         finalizer::FinalizationShare,
-        goodifier::GoodnessArtifact,
+        goodifier::{GoodnessArtifact, IMadeABlockArtifact},
         notary::NotarizationShare,
     },
     height_index::{Height, HeightIndex, HeightIndexedPool, HeightRange, Indexes, SelectIndex},
@@ -136,6 +136,9 @@ impl<T: IntoInner<ConsensusMessage> + HasTimestamp + Clone + Debug> InMemoryPool
         self
     }
     pub fn goodness_artifact(&self) -> &dyn HeightIndexedPool<GoodnessArtifact> {
+        self
+    }
+    pub fn i_made_a_block_artifact(&self) -> &dyn HeightIndexedPool<IMadeABlockArtifact> {
         self
     }
 }

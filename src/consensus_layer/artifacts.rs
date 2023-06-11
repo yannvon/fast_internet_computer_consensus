@@ -9,7 +9,7 @@ use super::consensus_subcomponents::{
     aggregator::{Finalization, Notarization},
     block_maker::BlockProposal,
     finalizer::FinalizationShare,
-    goodifier::GoodnessArtifact,
+    goodifier::{GoodnessArtifact, IMadeABlockArtifact},
     notary::{NotarizationShare, NotarizationShareContent},
 };
 
@@ -111,6 +111,7 @@ pub enum ConsensusMessage {
     FinalizationShare(FinalizationShare),
     Finalization(Finalization),
     GoodnessArtifact(GoodnessArtifact), // does not require to be signed as it is never broadcasted
+    IMadeABlockArtifact(IMadeABlockArtifact),
 }
 
 impl ConsensusMessageHashable for ConsensusMessage {
@@ -129,6 +130,7 @@ impl ConsensusMessageHashable for ConsensusMessage {
             ConsensusMessage::FinalizationShare(value) => value.get_cm_hash(),
             ConsensusMessage::Finalization(value) => value.get_cm_hash(),
             ConsensusMessage::GoodnessArtifact(value) => value.get_cm_hash(),
+            ConsensusMessage::IMadeABlockArtifact(value) => value.get_cm_hash(),
         }
     }
 
@@ -270,6 +272,27 @@ impl ConsensusMessageHashable for GoodnessArtifact {
 
     fn assert(msg: &ConsensusMessage) -> Option<&Self> {
         if let ConsensusMessage::GoodnessArtifact(value) = msg {
+            Some(value)
+        } else {
+            None
+        }
+    }
+}
+
+impl ConsensusMessageHashable for IMadeABlockArtifact {
+    fn get_id(&self) -> ConsensusMessageId {
+        ConsensusMessageId {
+            hash: self.get_cm_hash(),
+            height: self.block_height,
+        }
+    }
+
+    fn get_cm_hash(&self) -> ConsensusMessageHash {
+        ConsensusMessageHash::IMadeABlockArtifact(Hashed::crypto_hash(self))
+    }
+
+    fn assert(msg: &ConsensusMessage) -> Option<&Self> {
+        if let ConsensusMessage::IMadeABlockArtifact(value) = msg {
             Some(value)
         } else {
             None

@@ -79,6 +79,7 @@ pub enum ConsensusMessageHash {
     FinalizationShare(CryptoHash),
     Finalization(CryptoHash),
     GoodnessArtifact(CryptoHash),
+    IMadeABlockArtifact(CryptoHash),
 }
 
 impl ConsensusMessageHash {
@@ -90,6 +91,7 @@ impl ConsensusMessageHash {
             ConsensusMessageHash::Finalization(hash) => hash,
             ConsensusMessageHash::FinalizationShare(hash) => hash,
             ConsensusMessageHash::GoodnessArtifact(hash) => hash,
+            ConsensusMessageHash::IMadeABlockArtifact(hash) => hash,
         }
     }
 }
