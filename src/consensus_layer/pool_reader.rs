@@ -170,17 +170,19 @@ impl<'a> PoolReader<'a> {
         get_notarization_time(prev_height) //.map(|notarization_time| notarization_time)
     }
 
-    pub fn get_finalization_time(&self, height: Height) -> Option<Duration> {
+    pub fn get_finalization_time(&self, height: Height, my_node_id: u8) -> Option<Duration> {
         let current_time = system_time_now();
         let i_produced = self
             .pool
             .validated()
             .i_made_a_block_artifact()
             .get_by_height(height)
+            .filter(|art| art.my_id == my_node_id)
             .next()
             .unwrap_or(IMadeABlockArtifact {
                 block_height: height,
-                timestamp: Time(current_time.0 - Duration::from_secs(30).as_nanos() as u64),
+                timestamp: current_time, //Time(current_time.0 - Duration::from_secs(30).as_nanos() as u64),
+                my_id: 0,
             });
 
         if let Some(_round_start_time) = self.get_round_start_time(height) {

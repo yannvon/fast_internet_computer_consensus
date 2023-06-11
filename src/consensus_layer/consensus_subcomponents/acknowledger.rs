@@ -26,15 +26,15 @@ use crate::{
 pub type FinalizationShare = Signed<FinalizationShareContent, u8>;
 
 pub struct Acknowledger {
-    //node_id: u8,
+    node_id: u8,
     subnet_params: SubnetParams,
 }
 
 impl Acknowledger {
     #[allow(clippy::too_many_arguments)]
-    pub fn new(_node_id: u8, subnet_params: SubnetParams) -> Self {
+    pub fn new(node_id: u8, subnet_params: SubnetParams) -> Self {
         Self {
-            //node_id,
+            node_id,
             subnet_params,
         }
     }
@@ -68,7 +68,7 @@ impl Acknowledger {
                         {
                             println!("\nAcknowledgement of block with hash: {} at height {} by committee: {:?}", notarization_content.block.get_ref(), notarization_content.height, committee);
                             if let Some(finalization_time) =
-                                pool.get_finalization_time(notarization_content.height)
+                                pool.get_finalization_time(notarization_content.height, self.node_id)
                             {
                                 let height_metrics = HeightMetrics {
                                     latency: finalization_time,

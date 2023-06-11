@@ -82,7 +82,7 @@ impl ConsensusImpl {
                 Arc::clone(&time_source) as Arc<_>,
             ),
             aggregator: ShareAggregator::new(replica_number, subnet_params.clone()),
-            validator: Validator::new(Arc::clone(&time_source)),
+            validator: Validator::new(replica_number, Arc::clone(&time_source)),
             _time_source: time_source,
             schedule: RoundRobin::default(),
             subnet_params,

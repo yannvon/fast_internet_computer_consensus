@@ -15,13 +15,15 @@ use crate::{
 };
 
 pub struct Validator {
+    my_node_id: u8,
     _schedule: RoundRobin,
     _time_source: Arc<dyn TimeSource>,
 }
 
 impl Validator {
-    pub fn new(time_source: Arc<dyn TimeSource>) -> Self {
+    pub fn new(my_node_id: u8, time_source: Arc<dyn TimeSource>) -> Self {
         Self {
+            my_node_id,
             _schedule: RoundRobin::default(),
             _time_source: time_source,
         }
@@ -44,8 +46,8 @@ impl Validator {
                     .unwrap()
                     .contains_key(&finalization.content.height)
                 {
-                    if let Some(finalization_time) =
-                        pool_reader.get_finalization_time(finalization.content.height)
+                    if let Some(finalization_time) = pool_reader
+                        .get_finalization_time(finalization.content.height, self.my_node_id)
                     {
                         let height_metrics = HeightMetrics {
                             latency: finalization_time,

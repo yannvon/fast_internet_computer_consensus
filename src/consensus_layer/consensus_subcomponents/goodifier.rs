@@ -31,6 +31,7 @@ pub struct GoodnessArtifact {
 pub struct IMadeABlockArtifact {
     pub block_height: Height,
     pub timestamp: Time,
+    pub my_id: u8,
 }
 
 pub struct Goodifier {

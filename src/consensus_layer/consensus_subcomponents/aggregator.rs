@@ -55,14 +55,14 @@ impl FinalizationContent {
 pub type Finalization = Signed<FinalizationContent, u8>;
 
 pub struct ShareAggregator {
-    //node_id: u8,
+    node_id: u8,
     subnet_params: SubnetParams,
 }
 
 impl ShareAggregator {
-    pub fn new(_node_id: u8, subnet_params: SubnetParams) -> Self {
+    pub fn new(node_id: u8, subnet_params: SubnetParams) -> Self {
         Self {
-            //node_id,
+            node_id,
             subnet_params,
         }
     }
@@ -169,7 +169,7 @@ impl ShareAggregator {
                         shares
                     );
                     if let Some(finalization_time) =
-                        pool.get_finalization_time(finalization_content.height)
+                        pool.get_finalization_time(finalization_content.height, self.node_id)
                     {
                         let height_metrics = HeightMetrics {
                             latency: finalization_time,

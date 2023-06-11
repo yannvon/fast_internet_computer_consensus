@@ -104,6 +104,7 @@ impl BlockMaker {
                 let block_proposed_artifact = IMadeABlockArtifact {
                     block_height: height,
                     timestamp: system_time_now(),
+                    my_id: self.node_id,
                 };
                 vec![
                     block_proposal.unwrap(),
