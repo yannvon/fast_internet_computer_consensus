@@ -180,7 +180,7 @@ impl<'a> PoolReader<'a> {
             .next()
             .unwrap_or(IMadeABlockArtifact {
                 block_height: height,
-                timestamp: current_time,
+                timestamp: Time(current_time.0 - Duration::from_secs(30).as_nanos() as u64),
             });
 
         if let Some(_round_start_time) = self.get_round_start_time(height) {

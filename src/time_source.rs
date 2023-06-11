@@ -6,7 +6,7 @@ use std::time::SystemTime;
 /// Time since UNIX_EPOCH (in nanoseconds). Just like 'std::time::Instant' or
 /// 'std::time::SystemTime', [Time] does not implement the [Default] trait.
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Hash, Serialize, Deserialize)]
-pub struct Time(u64);
+pub struct Time(pub u64);
 
 impl Time {
     /// A private function to cast from [Duration] to [Time].
