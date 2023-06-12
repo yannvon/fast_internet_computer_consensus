@@ -84,13 +84,13 @@ impl<'a> PoolReader<'a> {
     }
 
     /// Return a valid block with the matching hash and height if it exists.
-    pub fn get_block(&self, hash: &CryptoHashOf<Block>, h: Height) -> Result<Block, ()> {
+    pub fn get_block(&self, h: Height) -> Result<Block, ()> {
         let mut blocks: Vec<BlockProposal> = self
             .pool
             .validated()
             .block_proposal()
             .get_by_height(h)
-            .filter(|x| x.content.get_hash() == hash.get_ref())
+            //.filter(|x| x.content.get_hash() == hash.get_ref())
             .collect();
         match blocks.len() {
             1 => Ok(blocks.remove(0).content.value),
@@ -105,7 +105,7 @@ impl<'a> PoolReader<'a> {
                 .validated()
                 .notarization()
                 .get_by_height(h)
-                .map(move |x| self.get_block(&x.content.block, h).unwrap()),
+                .map(move |x| self.get_block(h).unwrap()),
         )
     }
 

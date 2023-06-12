@@ -12,7 +12,7 @@ use crate::consensus_layer::consensus_subcomponents::goodifier::{
 };
 use crate::consensus_layer::height_index::Height;
 use crate::consensus_layer::{artifacts::ConsensusMessage, pool_reader::PoolReader};
-use crate::crypto::{CryptoHashOf, Signed};
+use crate::crypto::{CryptoHashOf, Hashed, Signed};
 use crate::{FinalizationType, HeightMetrics, SubnetParams};
 
 use super::block_maker::Block;
@@ -76,13 +76,55 @@ impl ShareAggregator {
     ) -> Vec<ConsensusMessage> {
         // println!("\n########## Aggregator ##########");
         let mut messages = Vec::new();
-        messages.append(&mut self.aggregate_notarization_shares(pool));
+        messages.append(&mut self.aggregate_notarization_shares(pool, finalization_times.clone()));
         messages.append(&mut self.aggregate_finalization_shares(pool, finalization_times));
         messages
     }
 
     /// Attempt to construct `Notarization`s at `notarized_height + 1`
-    fn aggregate_notarization_shares(&self, pool: &PoolReader<'_>) -> Vec<ConsensusMessage> {
+    fn aggregate_notarization_shares(
+        &self,
+        pool: &PoolReader<'_>,
+        finalization_times: Arc<RwLock<BTreeMap<Height, Option<HeightMetrics>>>>,
+    ) -> Vec<ConsensusMessage> {
+        let fin_height = pool.get_finalized_height() + 1;
+        let next_notar_height = pool.get_notarized_height() + 1;
+        let mut stuff = vec![];
+        for height in fin_height..=next_notar_height {
+            let shares_num = pool.get_notarization_shares(height).count();
+            if shares_num
+                > (self.subnet_params.total_nodes_number
+                    - self.subnet_params.disagreeing_nodes_number) as usize
+            {
+                let finalization_content = pool.get_block(height).unwrap();
+                //let finalization_content = shares.next().unwrap().content;
+                //println!(
+                //"\nFinalization of block with hash: {} at height {} by committee: {:?}",
+                //finalization_content.block.get_ref(),
+                //finalization_content.height,
+                //shares
+                //);
+                if let Some(finalization_time) = pool.get_finalization_time(height, self.node_id) {
+                    let height_metrics = HeightMetrics {
+                        latency: finalization_time,
+                        fp_finalization: FinalizationType::FP,
+                    };
+
+                    finalization_times
+                        .write()
+                        .unwrap()
+                        .insert(height, Some(height_metrics));
+                }
+                stuff.append(&mut vec![ConsensusMessage::Finalization(Finalization {
+                    content: FinalizationContent {
+                        height: finalization_content.height,
+                        block: CryptoHashOf::new(Hashed::crypto_hash(&finalization_content)),
+                    },
+                    signature: 50, // committee signature
+                })]);
+            }
+        }
+
         let height = pool.get_notarized_height() + 1;
         let notarization_shares = pool.get_notarization_shares(height);
         let grouped_shares_separated_from_acks = aggregate(notarization_shares); // in case CoD is used, shares and acks for the same proposal are in two separate entries
@@ -90,57 +132,60 @@ impl ShareAggregator {
         let grouped_shares = group_shares_and_acks(grouped_shares_separated_from_acks);
         // println!("Grouped shares: {:?}", grouped_shares);
         //let notarizations =
-        grouped_shares
-            .into_iter()
-            .filter_map(|(notary_content, shares)| {
-                let notary_content = match notary_content {
-                    NotarizationShareContent::COD(notary_content) => NotarizationContent {
-                        height: notary_content.height,
-                        block: notary_content.block,
-                    },
-                    NotarizationShareContent::ICC(notary_content) => NotarizationContent {
-                        height: notary_content.height,
-                        block: notary_content.block,
-                    },
-                };
-                if shares.len()
-                    > ((self.subnet_params.total_nodes_number
-                        + self.subnet_params.byzantine_nodes_number)
-                        / 2) as usize
-                {
-                    if self.subnet_params.fast_internet_computer_consensus {
-                        // println!("\nBlock with hash: {} received at least n-f notarization shares", notary_content.block.get_ref());
-                        let block = get_block_by_hash_and_height(
-                            pool,
-                            &notary_content.block,
-                            notary_content.height,
-                        );
-                        // CoD rule 3c: notarize only 'good' blocks
-                        match block_is_good(pool, &block.expect("block must be in pool")) {
-                            true => {
-                                // println!("\nNotarization of block with hash: {} at height {} by committee: {:?}", notary_content.block.get_ref(), notary_content.height, shares);
-                                Some(notary_content)
-                            }
-                            false => None,
-                        }
-                    } else {
-                        // println!("\nNotarization of block with hash: {} at height {} by committee: {:?}", notary_content.block.get_ref(), notary_content.height, shares);
-                        Some(notary_content)
-                    }
-                } else {
-                    None
-                }
-                .map(|notary_content| {
-                    ConsensusMessage::Notarization(Notarization {
-                        content: NotarizationContent {
+        stuff.extend(
+            grouped_shares
+                .into_iter()
+                .filter_map(|(notary_content, shares)| {
+                    let notary_content = match notary_content {
+                        NotarizationShareContent::COD(notary_content) => NotarizationContent {
                             height: notary_content.height,
                             block: notary_content.block,
                         },
-                        signature: 0, // committee signature
+                        NotarizationShareContent::ICC(notary_content) => NotarizationContent {
+                            height: notary_content.height,
+                            block: notary_content.block,
+                        },
+                    };
+                    if shares.len()
+                        > ((self.subnet_params.total_nodes_number
+                            + self.subnet_params.byzantine_nodes_number)
+                            / 2) as usize
+                    {
+                        if self.subnet_params.fast_internet_computer_consensus {
+                            // println!("\nBlock with hash: {} received at least n-f notarization shares", notary_content.block.get_ref());
+                            let block = get_block_by_hash_and_height(
+                                pool,
+                                &notary_content.block,
+                                notary_content.height,
+                            );
+                            // CoD rule 3c: notarize only 'good' blocks
+                            match block_is_good(pool, &block.expect("block must be in pool")) {
+                                true => {
+                                    // println!("\nNotarization of block with hash: {} at height {} by committee: {:?}", notary_content.block.get_ref(), notary_content.height, shares);
+                                    Some(notary_content)
+                                }
+                                false => None,
+                            }
+                        } else {
+                            // println!("\nNotarization of block with hash: {} at height {} by committee: {:?}", notary_content.block.get_ref(), notary_content.height, shares);
+                            Some(notary_content)
+                        }
+                    } else {
+                        None
+                    }
+                    .map(|notary_content| {
+                        ConsensusMessage::Notarization(Notarization {
+                            content: NotarizationContent {
+                                height: notary_content.height,
+                                block: notary_content.block,
+                            },
+                            signature: 0, // committee signature
+                        })
                     })
-                })
-            })
-            .collect()
+                }),
+        );
+
+        stuff
         // println!("Notarizations: {:?}", notarizations);
         //notarizations
     }
