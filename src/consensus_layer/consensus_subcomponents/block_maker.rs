@@ -227,13 +227,15 @@ fn already_proposed(pool: &PoolReader<'_>, h: u64, this_node: u8) -> bool {
 // Return true if the time since round start is greater than the required block
 // maker delay for the given rank.
 fn is_time_to_make_block(
-    pool: &PoolReader<'_>,
-    height: u64,
+    _pool: &PoolReader<'_>,
+    _height: u64,
     rank: u8,
-    time_source: &dyn TimeSource,
-    node_id: u8,
-    proposer_delay: u64,
+    _time_source: &dyn TimeSource,
+    _node_id: u8,
+    _proposer_delay: u64,
 ) -> bool {
+    rank == 0
+    /*
     let block_maker_delay = get_block_maker_delay(rank, proposer_delay);
     let just_make_sure_omg = Duration::from_secs(60);
     match pool.get_round_start_time(height) {
@@ -251,18 +253,18 @@ fn is_time_to_make_block(
             }
             false
         }
-    }
+    }*/
 }
 
 /// Calculate the required delay for block making based on the block maker's
 /// rank.
-fn get_block_maker_delay(rank: u8, proposer_delay: u64) -> Duration {
+/*fn get_block_maker_delay(rank: u8, proposer_delay: u64) -> Duration {
     if rank == 0 {
         Duration::from_millis(0)
     } else {
         (Duration::from_millis(proposer_delay) * rank as u32) + Duration::from_secs(60)
     }
-}
+}*/
 
 /// Return the validated block proposals with the lowest rank at height `h`, if
 /// there are any. Else return `None`.

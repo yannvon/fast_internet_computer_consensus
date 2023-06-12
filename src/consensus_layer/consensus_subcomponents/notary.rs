@@ -113,7 +113,7 @@ impl Notary {
 
     /// Return the time since round start, if it is greater than required
     /// notarization delay for the given block rank, or None otherwise.
-    fn _time_to_notarize(&self, pool: &PoolReader<'_>, height: Height, rank: u8) -> bool {
+    /*fn _time_to_notarize(&self, pool: &PoolReader<'_>, height: Height, rank: u8) -> bool {
         let adjusted_notary_delay =
             get_adjusted_notary_delay(pool, height, rank, self.subnet_params.artifact_delay);
         if let Some(start_time) = pool.get_round_start_time(height) {
@@ -121,7 +121,7 @@ impl Notary {
             return now >= start_time + adjusted_notary_delay;
         }
         height == 1
-    }
+    }*/
 
     /// Return true if this node has already published a notarization share
     /// for the given block proposal. Return false otherwise.
