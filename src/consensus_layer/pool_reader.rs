@@ -166,7 +166,7 @@ impl<'a> PoolReader<'a> {
     /// Return None if a timestamp is not found.
     /// This is somehwat unfavorable to FICC, since a round only starts with goodness of
     /// a notarized block. However, this upper bound makes for a good comparison still.
-    pub fn get_round_start_time(&self, height: Height) -> Option<Time> {
+    /*pub fn get_round_start_time(&self, height: Height) -> Option<Time> {
         let validated = self.pool.validated();
 
         let get_notarization_time = |h| {
@@ -178,7 +178,7 @@ impl<'a> PoolReader<'a> {
         };
         let prev_height = height - 1;
         get_notarization_time(prev_height) //.map(|notarization_time| notarization_time)
-    }
+    }*/
 
     pub fn get_finalization_time(&self, height: Height, my_node_id: u8) -> Option<Duration> {
         let current_time = system_time_now();
@@ -194,11 +194,11 @@ impl<'a> PoolReader<'a> {
                 my_id: 0,
             });
 
-        if let Some(_round_start_time) = self.get_round_start_time(height) {
-            let finalization_time = current_time - i_produced.timestamp;
-            // println!("Time to finalize block: {:?}", finalization_time);
-            return Some(finalization_time);
-        }
-        None
+        //if let Some(_round_start_time) = self.get_round_start_time(height) {
+        let finalization_time = current_time - i_produced.timestamp;
+        // println!("Time to finalize block: {:?}", finalization_time);
+        return Some(finalization_time);
+        //}
+        //None
     }
 }
