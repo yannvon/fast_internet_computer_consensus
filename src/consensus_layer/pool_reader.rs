@@ -121,37 +121,37 @@ impl<'a> PoolReader<'a> {
         }
     }
     */
-
-    pub fn get_goodness_height(&self) -> Height {
-        self.pool
-            .validated()
-            .goodness_artifact()
-            .max_height()
-            .unwrap_or(0)
-    }
-
-    pub fn get_latest_goodness_artifact_for_parent(
-        &self,
-        children_height: Height,
-    ) -> Option<GoodnessArtifact> {
-        if let Some(art) = self
-            .pool
-            .validated()
-            .goodness_artifact()
-            .get_by_height(children_height)
-            .find(|a| a.all_children_good)
-        {
-            Some(art)
-        } else {
+    /*
+        pub fn get_goodness_height(&self) -> Height {
             self.pool
                 .validated()
                 .goodness_artifact()
-                .get_by_height(children_height)
-                //.filter(|goodness_artifact| goodness_artifact.parent_hash.eq(parent_hash))
-                .max_by(|first, second| first.timestamp.cmp(&second.timestamp))
+                .max_height()
+                .unwrap_or(0)
         }
-    }
 
+        pub fn get_latest_goodness_artifact_for_parent(
+            &self,
+            children_height: Height,
+        ) -> Option<GoodnessArtifact> {
+            if let Some(art) = self
+                .pool
+                .validated()
+                .goodness_artifact()
+                .get_by_height(children_height)
+                .find(|a| a.all_children_good)
+            {
+                Some(art)
+            } else {
+                self.pool
+                    .validated()
+                    .goodness_artifact()
+                    .get_by_height(children_height)
+                    //.filter(|goodness_artifact| goodness_artifact.parent_hash.eq(parent_hash))
+                    .max_by(|first, second| first.timestamp.cmp(&second.timestamp))
+            }
+        }
+    */
     /*pub fn exists_goodness_artifact_for_parent(
         &self,
         parent_hash: &String,
