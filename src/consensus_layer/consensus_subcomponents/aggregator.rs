@@ -90,38 +90,43 @@ impl ShareAggregator {
         let fin_height = pool.get_finalized_height() + 1;
         let next_notar_height = pool.get_notarized_height() + 1;
         let mut stuff = vec![];
-        for height in fin_height..=next_notar_height {
-            let shares_num = pool.get_notarization_shares(height).count();
-            if shares_num
-                > (self.subnet_params.total_nodes_number
-                    - self.subnet_params.disagreeing_nodes_number) as usize
-            {
-                let finalization_content = pool.get_block(height).unwrap();
-                //let finalization_content = shares.next().unwrap().content;
-                //println!(
-                //"\nFinalization of block with hash: {} at height {} by committee: {:?}",
-                //finalization_content.block.get_ref(),
-                //finalization_content.height,
-                //shares
-                //);
-                if let Some(finalization_time) = pool.get_finalization_time(height, self.node_id) {
-                    let height_metrics = HeightMetrics {
-                        latency: finalization_time,
-                        fp_finalization: FinalizationType::FP,
-                    };
+        if self.subnet_params.fast_internet_computer_consensus {
+            for height in fin_height..=next_notar_height {
+                let shares_num = pool.get_notarization_shares(height).count();
+                if shares_num
+                    > (self.subnet_params.total_nodes_number
+                        - self.subnet_params.disagreeing_nodes_number)
+                        as usize
+                {
+                    let finalization_content = pool.get_block(height).unwrap();
+                    //let finalization_content = shares.next().unwrap().content;
+                    //println!(
+                    //"\nFinalization of block with hash: {} at height {} by committee: {:?}",
+                    //finalization_content.block.get_ref(),
+                    //finalization_content.height,
+                    //shares
+                    //);
+                    if let Some(finalization_time) =
+                        pool.get_finalization_time(height, self.node_id)
+                    {
+                        let height_metrics = HeightMetrics {
+                            latency: finalization_time,
+                            fp_finalization: FinalizationType::FP,
+                        };
 
-                    finalization_times
-                        .write()
-                        .unwrap()
-                        .insert(height, Some(height_metrics));
+                        finalization_times
+                            .write()
+                            .unwrap()
+                            .insert(height, Some(height_metrics));
+                    }
+                    stuff.append(&mut vec![ConsensusMessage::Finalization(Finalization {
+                        content: FinalizationContent {
+                            height: finalization_content.height,
+                            block: CryptoHashOf::new(Hashed::crypto_hash(&finalization_content)),
+                        },
+                        signature: 50, // committee signature
+                    })]);
                 }
-                stuff.append(&mut vec![ConsensusMessage::Finalization(Finalization {
-                    content: FinalizationContent {
-                        height: finalization_content.height,
-                        block: CryptoHashOf::new(Hashed::crypto_hash(&finalization_content)),
-                    },
-                    signature: 50, // committee signature
-                })]);
             }
         }
 

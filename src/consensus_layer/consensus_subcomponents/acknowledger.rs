@@ -44,78 +44,79 @@ impl Acknowledger {
         pool: &PoolReader<'_>,
         finalization_times: Arc<RwLock<BTreeMap<Height, Option<HeightMetrics>>>>,
     ) -> Vec<ConsensusMessage> {
-        // println!("\n########## Acknowledger ##########");
-        let finalized_height = pool.get_finalized_height();
-        let notarized_height = pool.get_notarized_height();
-        // heights before the last finalized block do not need to be checked
-        // check heights in which it is still possible for a block to be FP-finalized
-        // even if it was already notarized (happens if F > P)
-        for height in finalized_height + 1..=notarized_height + 1 {
-            let notarization_shares = pool.get_notarization_shares(height);
-            let grouped_shares = aggregate(notarization_shares);
-            let fp_pair_at_height: Vec<ConsensusMessage> = grouped_shares
-                .into_iter()
-                .filter_map(|(notarization_content, committee)| {
-                    if let NotarizationShareContent::COD(notarization_content) = notarization_content {
-                        // CoD rule 2: acknowledge (FP-finalize) only blocks whose parent is finalized
-                        // NEW RULES: FP-finalise always!
-                        if notarization_content.is_ack
-                            && committee.len()
-                                >= (self.subnet_params.total_nodes_number
-                                    - self.subnet_params.disagreeing_nodes_number)
-                                    as usize
-                            // && is_parent_finalized(pool, &notarization_content)
-                        {
-                            println!("\nAcknowledgement of block with hash: {} at height {} by committee: {:?}", notarization_content.block.get_ref(), notarization_content.height, committee);
-                            if let Some(finalization_time) =
-                                pool.get_finalization_time(notarization_content.height, self.node_id)
-                            {
-                                let height_metrics = HeightMetrics {
-                                    latency: finalization_time,
-                                    fp_finalization: FinalizationType::FP,
-                                };
-                                finalization_times
-                                    .write()
-                                    .unwrap()
-                                    .insert(notarization_content.height, Some(height_metrics));
-                            }
-                            Some(notarization_content)
-                        } else {
-                            None
-                        }
-                        .map(|notarization_content| {
-                            // if a block is acknowledged (>= n-f acks) it must be the only G child
-                            // therefore, we can send the notarization even before checking whether it is G or not
-                            // as we know it will be as soon as the 'goodifier' component is run
-                            vec![
-                                ConsensusMessage::Notarization(Notarization {
-                                    content: NotarizationContent {
-                                        height: notarization_content.height,
-                                        block: notarization_content.block.clone(),
-                                    },
+        vec![] /*
+               // println!("\n########## Acknowledger ##########");
+               let finalized_height = pool.get_finalized_height();
+               let notarized_height = pool.get_notarized_height();
+               // heights before the last finalized block do not need to be checked
+               // check heights in which it is still possible for a block to be FP-finalized
+               // even if it was already notarized (happens if F > P)
+               for height in finalized_height + 1..=notarized_height + 1 {
+                   let notarization_shares = pool.get_notarization_shares(height);
+                   let grouped_shares = aggregate(notarization_shares);
+                   let fp_pair_at_height: Vec<ConsensusMessage> = grouped_shares
+                       .into_iter()
+                       .filter_map(|(notarization_content, committee)| {
+                           if let NotarizationShareContent::COD(notarization_content) = notarization_content {
+                               // CoD rule 2: acknowledge (FP-finalize) only blocks whose parent is finalized
+                               // NEW RULES: FP-finalise always!
+                               if notarization_content.is_ack
+                                   && committee.len()
+                                       >= (self.subnet_params.total_nodes_number
+                                           - self.subnet_params.disagreeing_nodes_number)
+                                           as usize
+                                   // && is_parent_finalized(pool, &notarization_content)
+                               {
+                                   println!("\nAcknowledgement of block with hash: {} at height {} by committee: {:?}", notarization_content.block.get_ref(), notarization_content.height, committee);
+                                   if let Some(finalization_time) =
+                                       pool.get_finalization_time(notarization_content.height, self.node_id)
+                                   {
+                                       let height_metrics = HeightMetrics {
+                                           latency: finalization_time,
+                                           fp_finalization: FinalizationType::FP,
+                                       };
+                                       finalization_times
+                                           .write()
+                                           .unwrap()
+                                           .insert(notarization_content.height, Some(height_metrics));
+                                   }
+                                   Some(notarization_content)
+                               } else {
+                                   None
+                               }
+                               .map(|notarization_content| {
+                                   // if a block is acknowledged (>= n-f acks) it must be the only G child
+                                   // therefore, we can send the notarization even before checking whether it is G or not
+                                   // as we know it will be as soon as the 'goodifier' component is run
+                                   vec![
+                                       ConsensusMessage::Notarization(Notarization {
+                                           content: NotarizationContent {
+                                               height: notarization_content.height,
+                                               block: notarization_content.block.clone(),
+                                           },
 
-                                    signature: 0, // committee signature
-                                }),
-                                ConsensusMessage::Finalization(Finalization {
-                                    content: FinalizationContent {
-                                        height: notarization_content.height,
-                                        block: notarization_content.block,
-                                    },
-                                    signature: 50, // committee signature
-                                }),
-                            ]
-                        })
-                    } else {
-                        panic!("acknowledger called while running original IC consensus");
-                    }
-                })
-                .flatten()
-                .collect();
-            if !fp_pair_at_height.is_empty() {
-                return fp_pair_at_height;
-            }
-        }
-        vec![]
+                                           signature: 0, // committee signature
+                                       }),
+                                       ConsensusMessage::Finalization(Finalization {
+                                           content: FinalizationContent {
+                                               height: notarization_content.height,
+                                               block: notarization_content.block,
+                                           },
+                                           signature: 50, // committee signature
+                                       }),
+                                   ]
+                               })
+                           } else {
+                               panic!("acknowledger called while running original IC consensus");
+                           }
+                       })
+                       .flatten()
+                       .collect();
+                   if !fp_pair_at_height.is_empty() {
+                       return fp_pair_at_height;
+                   }
+               }
+               vec![]*/
     }
 }
 
