@@ -105,7 +105,7 @@ impl<'a> PoolReader<'a> {
                 .validated()
                 .notarization()
                 .get_by_height(h)
-                .map(move |x| self.get_block(h).unwrap()),
+                .map(move |_x| self.get_block(h).unwrap()),
         )
     }
 
@@ -197,7 +197,7 @@ impl<'a> PoolReader<'a> {
         //if let Some(_round_start_time) = self.get_round_start_time(height) {
         let finalization_time = current_time - i_produced.timestamp;
         // println!("Time to finalize block: {:?}", finalization_time);
-        return Some(finalization_time);
+        Some(finalization_time)
         //}
         //None
     }

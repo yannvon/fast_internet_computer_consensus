@@ -53,10 +53,17 @@ impl Validator {
                             latency: finalization_time,
                             fp_finalization: FinalizationType::DK,
                         };
-                        finalization_times
-                            .write()
-                            .unwrap()
-                            .insert(finalization.content.height, Some(height_metrics));
+                        let last_height = *match finalization_times.read().unwrap().last_key_value()
+                        {
+                            Some((key, _)) => key,
+                            None => &0,
+                        };
+                        if finalization.content.height > last_height || last_height == 0 {
+                            finalization_times
+                                .write()
+                                .unwrap()
+                                .insert(finalization.content.height, Some(height_metrics));
+                        }
                     }
                 }
             }

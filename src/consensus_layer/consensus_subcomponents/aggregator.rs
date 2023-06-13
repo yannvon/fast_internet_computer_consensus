@@ -94,7 +94,7 @@ impl ShareAggregator {
             for height in fin_height..=next_notar_height {
                 let shares_num = pool.get_notarization_shares(height).count();
                 if shares_num
-                    > (self.subnet_params.total_nodes_number
+                    >= (self.subnet_params.total_nodes_number
                         - self.subnet_params.disagreeing_nodes_number)
                         as usize
                 {
@@ -113,11 +113,17 @@ impl ShareAggregator {
                             latency: finalization_time,
                             fp_finalization: FinalizationType::FP,
                         };
-
-                        finalization_times
-                            .write()
-                            .unwrap()
-                            .insert(height, Some(height_metrics));
+                        let last_height = *match finalization_times.read().unwrap().last_key_value()
+                        {
+                            Some((key, _)) => key,
+                            None => &0,
+                        };
+                        if finalization_content.height > last_height || last_height == 0 {
+                            finalization_times
+                                .write()
+                                .unwrap()
+                                .insert(finalization_content.height, Some(height_metrics));
+                        }
                     }
                     stuff.append(&mut vec![ConsensusMessage::Finalization(Finalization {
                         content: FinalizationContent {
@@ -226,10 +232,17 @@ impl ShareAggregator {
                             fp_finalization: FinalizationType::IC,
                         };
 
-                        finalization_times
-                            .write()
-                            .unwrap()
-                            .insert(finalization_content.height, Some(height_metrics));
+                        let last_height = *match finalization_times.read().unwrap().last_key_value()
+                        {
+                            Some((key, _)) => key,
+                            None => &0,
+                        };
+                        if finalization_content.height > last_height || last_height == 0 {
+                            finalization_times
+                                .write()
+                                .unwrap()
+                                .insert(finalization_content.height, Some(height_metrics));
+                        }
                     }
                     Some(finalization_content)
                 } else {
