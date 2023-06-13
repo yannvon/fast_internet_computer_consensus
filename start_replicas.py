@@ -19,20 +19,20 @@ UPDATE_REPO = False
 commit = "cb76ac888b0539a3" # Put hash of commit, if update repo is necessary.
 
 backupPeers = [ 
-    # Jakarta
+    # Tokyo
     {
         "number": "16",
-        "ip": "108.136.215.50",
+        "ip": "52.194.253.125",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
-    # Tokyo
+    # Jakarta
     {
         "number": "16",
-        "ip": "43.206.235.29",
+        "ip": "108.136.215.50",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
