@@ -18,7 +18,6 @@ RUT=1
 UPDATE_REPO = False
 commit = "cb76ac888b0539a3" # Put hash of commit, if update repo is necessary.
 
-# Do not forget to change the replica number, and to set UPDATE_REPO=True, when changing peers
 backupPeers = [ 
     # Jakarta
     {
