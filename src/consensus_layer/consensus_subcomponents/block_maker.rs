@@ -1,4 +1,4 @@
-use std::{sync::Arc, time::Duration};
+use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 
@@ -11,8 +11,6 @@ use crate::{
     time_source::{system_time_now, TimeSource},
     SubnetParams,
 };
-
-use super::goodifier::block_is_good;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub struct Payload {}
@@ -177,7 +175,7 @@ impl BlockMaker {
 // Return None otherwise.
 fn get_dependencies(
     pool: &PoolReader<'_>,
-    is_fast_internet_computer_consensus: bool,
+    _is_fast_internet_computer_consensus: bool,
 ) -> Option<(RandomBeacon, Block)> {
     let notarized_height = pool.get_notarized_height();
     // println!("Last block notarized at height: {}", notarized_height);
@@ -186,17 +184,6 @@ fn get_dependencies(
     // and then choose the one with the smallest rank among the "good" ones
     let parent = pool
         .get_notarized_blocks(notarized_height)
-        .filter(|block| {
-            if is_fast_internet_computer_consensus {
-                // CoD rule 3a: extend only "good" blocks
-                //let is_good =
-                block_is_good(pool, block)
-                // println!("Notarized block {:?} is good: {}", block, is_good);
-                //is_good
-            } else {
-                true
-            }
-        })
         .min_by(|block1, block2| block1.rank.cmp(&block2.rank));
     match parent {
         Some(parent) => {

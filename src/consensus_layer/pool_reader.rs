@@ -1,17 +1,12 @@
 use std::time::Duration;
 
-use crate::{
-    consensus_layer::pool::ConsensusPoolImpl,
-    crypto::CryptoHashOf,
-    time_source::{system_time_now, Time},
-};
+use crate::{consensus_layer::pool::ConsensusPoolImpl, time_source::system_time_now};
 
 use super::{
-    artifacts::ConsensusMessageHashable,
     consensus_subcomponents::{
         block_maker::{Block, BlockProposal},
         finalizer::FinalizationShare,
-        goodifier::{GoodnessArtifact, IMadeABlockArtifact},
+        goodifier::IMadeABlockArtifact,
         notary::{NotarizationShare, NotarizationShareContent},
     },
     height_index::{Height, HeightRange},
@@ -180,7 +175,7 @@ impl<'a> PoolReader<'a> {
         get_notarization_time(prev_height) //.map(|notarization_time| notarization_time)
     }*/
 
-    pub fn get_finalization_time(&self, height: Height, my_node_id: u8) -> Option<Duration> {
+    pub fn get_finalization_time(&self, height: Height, my_node_id: u8) -> Duration {
         let current_time = system_time_now();
         let i_produced = self
             .pool
@@ -197,7 +192,7 @@ impl<'a> PoolReader<'a> {
         //if let Some(_round_start_time) = self.get_round_start_time(height) {
         let finalization_time = current_time - i_produced.timestamp;
         // println!("Time to finalize block: {:?}", finalization_time);
-        Some(finalization_time)
+        finalization_time
         //}
         //None
     }

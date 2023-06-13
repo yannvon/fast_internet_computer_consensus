@@ -1,21 +1,15 @@
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    sync::Arc,
-};
+use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 
 use crate::{
     consensus_layer::{artifacts::ConsensusMessage, height_index::Height, pool_reader::PoolReader},
-    crypto::{CryptoHashOf, Hashed},
+    crypto::CryptoHashOf,
     time_source::{Time, TimeSource},
     SubnetParams,
 };
 
-use super::{
-    block_maker::{Block, BlockProposal},
-    notary::NotarizationShareContent,
-};
+use super::block_maker::{Block, BlockProposal};
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct GoodnessArtifact {
@@ -36,36 +30,40 @@ pub struct IMadeABlockArtifact {
 
 pub struct Goodifier {
     _node_id: u8,
-    subnet_params: SubnetParams,
-    time_source: Arc<dyn TimeSource>,
+    _subnet_params: SubnetParams,
+    _time_source: Arc<dyn TimeSource>,
 }
 
 impl Goodifier {
-    pub fn new(node_id: u8, subnet_params: SubnetParams, time_source: Arc<dyn TimeSource>) -> Self {
+    pub fn new(
+        _node_id: u8,
+        _subnet_params: SubnetParams,
+        _time_source: Arc<dyn TimeSource>,
+    ) -> Self {
         Self {
-            _node_id: node_id,
-            subnet_params,
-            time_source,
+            _node_id,
+            _subnet_params,
+            _time_source,
         }
     }
 
-    pub fn on_state_change(&self, pool: &PoolReader<'_>) -> Vec<ConsensusMessage> {
-        return vec![]; /*
-                       // println!("\n########## Goodifier ##########");
-                       let notarized_height = pool.get_notarized_height();
-                       let finalized_height = pool.get_finalized_height();
-                       // heights before the last finalized block do not need to be checked
-                       // check heights in which it is still possible for a goodness artifact to be updated
-                       (finalized_height..=notarized_height + 1)
-                           .filter_map(|h| {
-                               let consensus_messages_at_height = self.goodify_height(pool, h);
-                               match consensus_messages_at_height.len() {
-                                   0 => None,
-                                   _ => Some(consensus_messages_at_height),
-                               }
-                           })
-                           .flatten()
-                           .collect()*/
+    pub fn on_state_change(&self, _pool: &PoolReader<'_>) -> Vec<ConsensusMessage> {
+        vec![] /*
+               // println!("\n########## Goodifier ##########");
+               let notarized_height = pool.get_notarized_height();
+               let finalized_height = pool.get_finalized_height();
+               // heights before the last finalized block do not need to be checked
+               // check heights in which it is still possible for a goodness artifact to be updated
+               (finalized_height..=notarized_height + 1)
+                   .filter_map(|h| {
+                       let consensus_messages_at_height = self.goodify_height(pool, h);
+                       match consensus_messages_at_height.len() {
+                           0 => None,
+                           _ => Some(consensus_messages_at_height),
+                       }
+                   })
+                   .flatten()
+                   .collect()*/
     }
     /*
         fn goodify_height(&self, pool: &PoolReader<'_>, h: Height) -> Vec<ConsensusMessage> {
@@ -196,7 +194,7 @@ impl Goodifier {
     }*/
 }
 
-pub fn get_block_by_hash_and_height(
+pub fn _get_block_by_hash_and_height(
     pool: &PoolReader<'_>,
     hash: &CryptoHashOf<Block>,
     h: Height,
@@ -215,25 +213,25 @@ pub fn get_block_by_hash_and_height(
     }
 }
 
-pub fn block_is_good(pool: &PoolReader<'_>, block: &Block) -> bool {
-    return true; /*
-                 // block is one of the children for the latest "goodness" artifact
-                 // pool.print_goodness_artifacts_at_height(block.height);
-                 match pool.get_latest_goodness_artifact_for_parent(block.height) {
-                     Some(goodness_artifact) => {
-                         // println!("\nLatest goodness artifact {:?}", goodness_artifact);
-                         if goodness_artifact.all_children_good {
-                             return true;
-                         }
-                         let block_hash = Hashed::crypto_hash(&block);
-                         // println!("Block to be checked: {}", block_hash);
-                         goodness_artifact.most_acks_child == block_hash
-                     }
-                     None => {
-                         if block.height == 0 {
-                             return true; // genesis is good
-                         }
-                         false
-                     }
-                 }*/
+pub fn _block_is_good(_pool: &PoolReader<'_>, _block: &Block) -> bool {
+    true /*
+         // block is one of the children for the latest "goodness" artifact
+         // pool.print_goodness_artifacts_at_height(block.height);
+         match pool.get_latest_goodness_artifact_for_parent(block.height) {
+             Some(goodness_artifact) => {
+                 // println!("\nLatest goodness artifact {:?}", goodness_artifact);
+                 if goodness_artifact.all_children_good {
+                     return true;
+                 }
+                 let block_hash = Hashed::crypto_hash(&block);
+                 // println!("Block to be checked: {}", block_hash);
+                 goodness_artifact.most_acks_child == block_hash
+             }
+             None => {
+                 if block.height == 0 {
+                     return true; // genesis is good
+                 }
+                 false
+             }
+         }*/
 }

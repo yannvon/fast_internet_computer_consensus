@@ -46,25 +46,16 @@ impl Validator {
                     .unwrap()
                     .contains_key(&finalization.content.height)
                 {
-                    if let Some(finalization_time) = pool_reader
-                        .get_finalization_time(finalization.content.height, self.my_node_id)
-                    {
-                        let height_metrics = HeightMetrics {
-                            latency: finalization_time,
-                            fp_finalization: FinalizationType::DK,
-                        };
-                        let last_height = *match finalization_times.read().unwrap().last_key_value()
-                        {
-                            Some((key, _)) => key,
-                            None => &0,
-                        };
-                        if finalization.content.height > last_height || last_height == 0 {
-                            finalization_times
-                                .write()
-                                .unwrap()
-                                .insert(finalization.content.height, Some(height_metrics));
-                        }
-                    }
+                    let finalization_time = pool_reader
+                        .get_finalization_time(finalization.content.height, self.my_node_id);
+                    let height_metrics = HeightMetrics {
+                        latency: finalization_time,
+                        fp_finalization: FinalizationType::DK,
+                    };
+                    finalization_times
+                        .write()
+                        .unwrap()
+                        .insert(finalization.content.height, Some(height_metrics));
                 }
             }
             change_set.push(ChangeAction::MoveToValidated(consensus_message));

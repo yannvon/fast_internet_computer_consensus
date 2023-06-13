@@ -225,6 +225,7 @@ fn find_lowest_ranked_proposals(pool: &PoolReader<'_>, h: Height) -> Vec<BlockPr
 /// notarized heights, by how far the certified height lags behind the finalized
 /// height, and by how far we have advanced beyond a summary block without
 /// creating a CUP.
+
 pub fn get_adjusted_notary_delay(
     pool: &PoolReader<'_>,
     _height: Height,

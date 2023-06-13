@@ -5,19 +5,9 @@ use std::{
 
 use super::finalizer::FinalizationShareContent; //, notary::NotarizationShareContentCOD};
 use crate::{
-    consensus_layer::{
-        artifacts::ConsensusMessage,
-        consensus_subcomponents::{
-            aggregator::{
-                aggregate, Finalization, FinalizationContent, Notarization, NotarizationContent,
-            },
-            notary::NotarizationShareContent,
-        },
-        height_index::Height,
-        pool_reader::PoolReader,
-    },
+    consensus_layer::{artifacts::ConsensusMessage, height_index::Height, pool_reader::PoolReader},
     crypto::Signed,
-    FinalizationType, HeightMetrics, SubnetParams,
+    HeightMetrics, SubnetParams,
 };
 
 /// A finalization share is a multi-signature share on a finalization content.
@@ -26,23 +16,23 @@ use crate::{
 pub type FinalizationShare = Signed<FinalizationShareContent, u8>;
 
 pub struct Acknowledger {
-    node_id: u8,
-    subnet_params: SubnetParams,
+    _node_id: u8,
+    _subnet_params: SubnetParams,
 }
 
 impl Acknowledger {
     #[allow(clippy::too_many_arguments)]
-    pub fn new(node_id: u8, subnet_params: SubnetParams) -> Self {
+    pub fn new(_node_id: u8, _subnet_params: SubnetParams) -> Self {
         Self {
-            node_id,
-            subnet_params,
+            _node_id,
+            _subnet_params,
         }
     }
 
     pub fn on_state_change(
         &self,
-        pool: &PoolReader<'_>,
-        finalization_times: Arc<RwLock<BTreeMap<Height, Option<HeightMetrics>>>>,
+        _pool: &PoolReader<'_>,
+        _finalization_times: Arc<RwLock<BTreeMap<Height, Option<HeightMetrics>>>>,
     ) -> Vec<ConsensusMessage> {
         vec![] /*
                // println!("\n########## Acknowledger ##########");
