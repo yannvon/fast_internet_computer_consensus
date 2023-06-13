@@ -5,34 +5,57 @@ import os
 import json
 import matplotlib.pyplot as plt
 
-F = 3
-P = 3
+F = 5
+P = 0
 T = 300 # Rtuntime
 D = 5000 # Rank delay
-FICC = True
+FICC = False
 BI=10
 PI=20
 BIRU=100
 RUT=1
 
 UPDATE_REPO = False
-commit = "dc45e730269b1a15"
+commit = "dc45e730269b1a15" # Put hash of commit, if update repo is necessary.
 UPDATE_MAIN = False
+
+
 
 peers = [
     # Sao Paolo
     {
         "number": "16",
-        "ip": "18.230.184.137",
+        "ip": "54.94.232.44",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
+    # Sao Paolo
     {
         "number": "15",
-        "ip": "18.228.173.151",
+        "ip": "18.231.108.79",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Bahrain
+    {
+        "number": "14",
+        "ip": "15.184.220.208",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Stockholm
+    {
+        "number": "13",
+        "ip": "13.51.56.252",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -41,36 +64,38 @@ peers = [
     },
     # Frankfurt
     {
-        "number": "14",
-        "ip": "3.64.61.85",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    {
-        "number": "13",
-        "ip": "3.69.255.234",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Canada
-    {
         "number": "12",
-        "ip": "3.99.247.34",
+        "ip": "3.120.206.238",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
+    # Montreal
     {
         "number": "11",
-        "ip": "3.99.249.80",
+        "ip": "3.99.221.224",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Sydney
+    {
+        "number": "10",
+        "ip": "13.54.192.50",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Singapore
+    {
+        "number": "9",
+        "ip": "13.212.154.248",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -79,36 +104,8 @@ peers = [
     },
     # Seoul
     {
-        "number": "10",
-        "ip": "3.35.47.10",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    {
-        "number": "9",
-        "ip": "3.34.127.246",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Singapore
-    {
         "number": "8",
-        "ip": "13.212.113.53",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    {
-        "number": "7",
-        "ip": "54.251.209.251",
+        "ip": "13.209.9.52",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -116,18 +113,49 @@ peers = [
         "remote_peers_addresses": "",
     },
     # Mumbai
-    {    
-        "number": "6",
-        "ip": "65.0.108.54",
+    {
+        "number": "7",
+        "ip": "3.111.33.248",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
+    # Melbourne
+    {    
+        "number": "6",
+        "ip": "16.50.238.41",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Hong Kong
     {
         "number": "5",
-        "ip": "65.1.110.172",
+        "ip": "18.162.194.131",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Cape Town
+    {    
+        "number": "4",
+        "ip": "13.245.18.82",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Oregon
+    {
+        "number": "3",
+        "ip": "54.188.124.179",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -135,37 +163,19 @@ peers = [
         "remote_peers_addresses": "",
     },
     # Cali
-    {    
-        "number": "4",
-        "ip": "3.101.60.32",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    {
-        "number": "3",
-        "ip": "13.56.229.138",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Virgina
     {
         "number": "2",
-        "ip": "3.87.239.126",
+        "ip": "54.215.31.233",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
+    # Ohio
     {
         "number": "1",
-        "ip": "3.86.116.119",
+        "ip": "3.22.75.75",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -174,73 +184,6 @@ peers = [
     },
 ]
 
-peers1 = [
-    # Singapore
-    {
-        "number": "7",
-        "ip": "13.212.1.63",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # N. Cali
-    {    
-        "number": "6",
-        "ip": "54.176.251.110",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    {
-        "number": "5",
-        "ip": "52.53.218.46",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    {    
-        "number": "4",
-        "ip": "54.193.7.226",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    {
-        "number": "3",
-        "ip": "13.56.252.162",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    {
-        "number": "2",
-        "ip": "54.177.117.232",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    {
-        "number": "1",
-        "ip": "54.176.68.98",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-]
 
 N = len(peers)
 
