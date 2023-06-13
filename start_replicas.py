@@ -16,10 +16,71 @@ BIRU=100
 RUT=1
 
 UPDATE_REPO = False
-commit = "dc45e730269b1a15" # Put hash of commit, if update repo is necessary.
-UPDATE_MAIN = False
+commit = "cb76ac888b0539a3" # Put hash of commit, if update repo is necessary.
 
-
+# Do not forget to change the replica number, and to set UPDATE_REPO=True, when changing peers
+backupPeers = [ 
+    # Jakarta
+    {
+        "number": "16",
+        "ip": "108.136.215.50",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Tokyo
+    {
+        "number": "16",
+        "ip": "43.206.235.29",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # London
+    {
+        "number": "16",
+        "ip": "3.8.94.18",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Paris
+    {
+        "number": "16",
+        "ip": "52.47.154.248",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Cali
+    {
+        "number": "16",
+        "ip": "54.183.129.110",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Ohio
+    {
+        "number": "16",
+        "ip": "18.221.207.66	",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+]
 
 peers = [
     # Sao Paolo
@@ -186,40 +247,6 @@ peers = [
 
 
 N = len(peers)
-
-if UPDATE_MAIN:
-    print("\Cleaning repo on replicas")
-
-    for peer in peers:
-        print("\nCleaning main for replica", peer["number"])
-        clone_repo_cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'rm -rf fast_internet_computer_consensus/src/main.rs\''
-        process = subprocess.Popen(clone_repo_cmd, shell=True)
-        process.wait()
-
-
-    print("\Cloning main on replicas")
-
-    for peer in peers:
-        print("\nCloning main for replica", peer["number"])
-        clone_repo_cmd = f'scp -i ./keys/{peer["key_file"]} ./src/main.rs ubuntu@{peer["ip"]}:fast_internet_computer_consensus/src/main.rs'
-        process = subprocess.Popen(clone_repo_cmd, shell=True)
-        process.wait()
-
-    print("\nRepo cloned on replicas")
-
-    processes = []
-    for peer in peers:
-        print("\nBuilding container for replica", peer["number"])
-        build_container_cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'cd fast_internet_computer_consensus && docker compose build\''
-        process = subprocess.Popen(build_container_cmd, shell=True, stdout=subprocess.DEVNULL)
-        processes.append(process)
-
-    for p in processes:
-        p.communicate() # waits for replica to finish
-
-    print("\nContainer built on replicas")
-
-
 
 if UPDATE_REPO:
     print("\Cleaning repo on replicas")
