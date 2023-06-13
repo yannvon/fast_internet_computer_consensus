@@ -4,13 +4,14 @@ import time
 import os
 import json
 import matplotlib.pyplot as plt
+import matplotlib
 
 #folder = "FICC_7_2_0_3000_300_1686479937" 
 #folder = "FICC_7_1_1_3000_300_1686481701" # Weird spikes for singapore replica
 #folder = "FICC_7_2_0_3000_100_1686511357" # Kobi new proposer latency, p=0
 #folder = "FICC_7_1_1_3000_100_1686513466" # Kobi new proposer latency, p=1 (red lines must be wrong, right?)
 #folder = "FICC_7_1_1_3000_100_1686514196" # Kobi new proposer latency, p=1 (red lines must be wrong, right?)
-folder = "FICC_16_3_3_5000_100_1686526647" 
+folder = "FICC_16_3_3_5000_300_1686527731" 
 
 N = 16
 
@@ -154,20 +155,24 @@ def plotAllProposers():
 
 
 def plotAgregate():
-    plt.figure(figsize=(26,13), dpi=300)
+    plt.figure(figsize=(12,8), dpi=300)
     plt.plot() 
     ax = plt.gca()
     ax.set_xlabel("Round")
     ax.set_ylabel("Latency [s]")
 
-    colors = ["green", "blue", "grey"]
+    colors = ['#219ebc', "#ffb703", "#fb8500"]
     color_labels = {
-        "green": "FP-finalized block",
-        "blue": "IC-finalized block",
-        "grey": "finalization from peer"
+        "#219ebc": "FP-finalized block",
+        "#ffb703": "IC-finalized block",
+        "#fb8500": "finalization from peer"
     }
 
     #plt.show()
+    fp_bar = None
+    ic_bar = None
+    dk_bar = None
+    
     for i in range(1,N+1):
         benchmark = getBenchmarks(i)
         iterations = [int(iteration) for iteration in benchmark["finalization_times"].keys()]
@@ -176,18 +181,19 @@ def plotAgregate():
         finalization_types = [metrics["fp_finalization"] for metrics in benchmark["finalization_times"].values()]
         _, filled_finalization_types = fillMissingElements(iterations, finalization_types, "-")
 
-        fp_bar = None
-        ic_bar = None
         for j, type in enumerate(filled_finalization_types):
-            if type == "FP":
+            if (-i) % N != j % N:
+                continue
+            elif type == "FP":
                 fp_bar = ax.bar(filled_iterations[j], filled_latencies[j], width=1, color=colors[0], label=color_labels[colors[0]])
             elif type == "IC":
                 ic_bar = ax.bar(filled_iterations[j], filled_latencies[j], width=1, color=colors[1], label=color_labels[colors[1]])
             elif type == "DK":
-                ic_bar = ax.bar(filled_iterations[j], filled_latencies[j], width=1, color=colors[2], label=color_labels[colors[2]])
-        handles = [fp_bar, ic_bar]
-        labels = ["FP-finalized block", "IC-finalized block", "finalization from peer"]
-        ax.legend(handles, labels, loc="upper right")
+                dk_bar = ax.bar(filled_iterations[j], filled_latencies[j], width=1, color=colors[2], label=color_labels[colors[2]])
+    
+    handles = [fp_bar, ic_bar, dk_bar]
+    labels = ["FP-finalized block", "IC-finalized block", "Received finalization from peer"]
+    ax.legend(handles, labels, loc="upper right")
 
     
     plt.savefig(f'combine_proposer_latencies.png')

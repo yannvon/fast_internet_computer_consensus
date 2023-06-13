@@ -6,17 +6,17 @@ import matplotlib.pyplot as plt
 
 results = [
     {
-         "folder": "./benchmark/ICC_16_5_0_5000_100_1686525771",
+         "folder": "./benchmark/ICC_16_5_0_10000_100_1686642144",
          "label": "ICC n=16 f=5",
          "N": 16,
     },
     {
-         "folder": "./benchmark/FICC_16_5_0_5000_100_1686526198",
+         "folder": "./benchmark/FICC_16_5_0_10000_100_1686642571",
          "label": "FICC n=16 f=5 p=0",
          "N": 16,
     },
     {
-         "folder": "./benchmark/FICC_16_3_3_5000_100_1686526647",
+         "folder": "./benchmark/FICC_16_3_3_10000_100_1686643003",
          "label": "FICC n=16 f=3 p=3",
          "N": 16,
     },
@@ -53,7 +53,7 @@ for res in results:
             n_replica = int(filename[18:-5])
 
             location_latencies = [value["latency"]["secs"] + value["latency"]["nanos"] / 1000000000 for value in list(data['finalization_times'].values())]#[:100]
-            location_latencies = location_latencies[((-n_replica) % res["N"])::res["N"]]
+            location_latencies = location_latencies[((1-n_replica) % res["N"])::res["N"]]
             box_plots.append(location_latencies)
             labels.append(filename[18:-5])
     
@@ -84,7 +84,7 @@ for res in results:
             n_replica = int(filename[18:-5])
 
             location_latencies = [value["latency"]["secs"] + value["latency"]["nanos"] / 1000000000 for value in list(data['finalization_times'].values())]#[:100]
-            location_latencies = location_latencies[((-n_replica) % res["N"])::res["N"]]
+            location_latencies = location_latencies[((1-n_replica) % res["N"])::res["N"]]
             subnet_latencies.extend(location_latencies)
     
     box_plots.append(subnet_latencies)
