@@ -168,7 +168,7 @@ impl Peer {
                 match &outgoing_artifact {
                     ConsensusMessage::BlockProposal(proposal) => {
                         if proposal.content.value.height == 1 {
-                            sleep(Duration::from_millis(200));
+                            sleep(Duration::from_millis(100));
                         }
                     }
                     ConsensusMessage::NotarizationShare(share) => match &share.content {

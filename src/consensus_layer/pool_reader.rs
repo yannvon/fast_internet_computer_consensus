@@ -1,17 +1,12 @@
 use std::time::Duration;
 
-use crate::{
-    consensus_layer::pool::ConsensusPoolImpl,
-    crypto::CryptoHashOf,
-    time_source::{system_time_now, Time},
-};
+use crate::{consensus_layer::pool::ConsensusPoolImpl, time_source::system_time_now};
 
 use super::{
-    artifacts::ConsensusMessageHashable,
     consensus_subcomponents::{
         block_maker::{Block, BlockProposal},
         finalizer::FinalizationShare,
-        goodifier::{GoodnessArtifact, IMadeABlockArtifact},
+        goodifier::IMadeABlockArtifact,
         notary::{NotarizationShare, NotarizationShareContent},
     },
     height_index::{Height, HeightRange},
@@ -84,13 +79,13 @@ impl<'a> PoolReader<'a> {
     }
 
     /// Return a valid block with the matching hash and height if it exists.
-    pub fn get_block(&self, hash: &CryptoHashOf<Block>, h: Height) -> Result<Block, ()> {
+    pub fn get_block(&self, h: Height) -> Result<Block, ()> {
         let mut blocks: Vec<BlockProposal> = self
             .pool
             .validated()
             .block_proposal()
             .get_by_height(h)
-            .filter(|x| x.content.get_hash() == hash.get_ref())
+            //.filter(|x| x.content.get_hash() == hash.get_ref())
             .collect();
         match blocks.len() {
             1 => Ok(blocks.remove(0).content.value),
@@ -105,7 +100,7 @@ impl<'a> PoolReader<'a> {
                 .validated()
                 .notarization()
                 .get_by_height(h)
-                .map(move |x| self.get_block(&x.content.block, h).unwrap()),
+                .map(move |_x| self.get_block(h).unwrap()),
         )
     }
 
@@ -121,27 +116,37 @@ impl<'a> PoolReader<'a> {
         }
     }
     */
+    /*
+        pub fn get_goodness_height(&self) -> Height {
+            self.pool
+                .validated()
+                .goodness_artifact()
+                .max_height()
+                .unwrap_or(0)
+        }
 
-    pub fn get_goodness_height(&self) -> Height {
-        self.pool
-            .validated()
-            .goodness_artifact()
-            .max_height()
-            .unwrap_or(0)
-    }
-
-    pub fn get_latest_goodness_artifact_for_parent(
-        &self,
-        children_height: Height,
-    ) -> Option<GoodnessArtifact> {
-        self.pool
-            .validated()
-            .goodness_artifact()
-            .get_by_height(children_height)
-            //.filter(|goodness_artifact| goodness_artifact.parent_hash.eq(parent_hash))
-            .max_by(|first, second| first.timestamp.cmp(&second.timestamp))
-    }
-
+        pub fn get_latest_goodness_artifact_for_parent(
+            &self,
+            children_height: Height,
+        ) -> Option<GoodnessArtifact> {
+            if let Some(art) = self
+                .pool
+                .validated()
+                .goodness_artifact()
+                .get_by_height(children_height)
+                .find(|a| a.all_children_good)
+            {
+                Some(art)
+            } else {
+                self.pool
+                    .validated()
+                    .goodness_artifact()
+                    .get_by_height(children_height)
+                    //.filter(|goodness_artifact| goodness_artifact.parent_hash.eq(parent_hash))
+                    .max_by(|first, second| first.timestamp.cmp(&second.timestamp))
+            }
+        }
+    */
     /*pub fn exists_goodness_artifact_for_parent(
         &self,
         parent_hash: &String,
@@ -156,7 +161,7 @@ impl<'a> PoolReader<'a> {
     /// Return None if a timestamp is not found.
     /// This is somehwat unfavorable to FICC, since a round only starts with goodness of
     /// a notarized block. However, this upper bound makes for a good comparison still.
-    pub fn get_round_start_time(&self, height: Height) -> Option<Time> {
+    /*pub fn get_round_start_time(&self, height: Height) -> Option<Time> {
         let validated = self.pool.validated();
 
         let get_notarization_time = |h| {
@@ -168,9 +173,9 @@ impl<'a> PoolReader<'a> {
         };
         let prev_height = height - 1;
         get_notarization_time(prev_height) //.map(|notarization_time| notarization_time)
-    }
+    }*/
 
-    pub fn get_finalization_time(&self, height: Height, my_node_id: u8) -> Option<Duration> {
+    pub fn get_finalization_time(&self, height: Height, my_node_id: u8) -> Duration {
         let current_time = system_time_now();
         let i_produced = self
             .pool
@@ -184,11 +189,11 @@ impl<'a> PoolReader<'a> {
                 my_id: 0,
             });
 
-        if let Some(_round_start_time) = self.get_round_start_time(height) {
-            let finalization_time = current_time - i_produced.timestamp;
-            // println!("Time to finalize block: {:?}", finalization_time);
-            return Some(finalization_time);
-        }
-        None
+        //if let Some(_round_start_time) = self.get_round_start_time(height) {
+        let finalization_time = current_time - i_produced.timestamp;
+        // println!("Time to finalize block: {:?}", finalization_time);
+        finalization_time
+        //}
+        //None
     }
 }

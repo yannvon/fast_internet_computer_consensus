@@ -70,15 +70,19 @@ pub type NotarizationShare = Signed<NotarizationShareContent, u8>;
 pub struct Notary {
     node_id: u8,
     subnet_params: SubnetParams,
-    time_source: Arc<dyn TimeSource>,
+    _time_source: Arc<dyn TimeSource>,
 }
 
 impl Notary {
-    pub fn new(node_id: u8, subnet_params: SubnetParams, time_source: Arc<dyn TimeSource>) -> Self {
+    pub fn new(
+        node_id: u8,
+        subnet_params: SubnetParams,
+        _time_source: Arc<dyn TimeSource>,
+    ) -> Self {
         Self {
             node_id,
             subnet_params,
-            time_source,
+            _time_source,
         }
     }
 
@@ -91,10 +95,10 @@ impl Notary {
         // in case there is only one 'good' block, it might not be the one with the lowest rank
         // therefore, we consider all proposals
         for proposal in get_proposals(pool, height) {
-            let rank = proposal.content.value.rank;
-            if self.time_to_notarize(pool, height, rank)
-                && !self.is_proposal_already_notarized_by_me(pool, &proposal)
-            {
+            let _rank = proposal.content.value.rank;
+            /*if self.time_to_notarize(pool, height, rank)
+            &&*/
+            if !self.is_proposal_already_notarized_by_me(pool, &proposal) {
                 if let Some(s) = self.notarize_block(pool, proposal) {
                     // println!(
                     //     "\nCreated notarization share: {:?} for proposal of rank: {:?}",
@@ -109,15 +113,15 @@ impl Notary {
 
     /// Return the time since round start, if it is greater than required
     /// notarization delay for the given block rank, or None otherwise.
-    fn time_to_notarize(&self, pool: &PoolReader<'_>, height: Height, rank: u8) -> bool {
+    /*fn _time_to_notarize(&self, pool: &PoolReader<'_>, height: Height, rank: u8) -> bool {
         let adjusted_notary_delay =
             get_adjusted_notary_delay(pool, height, rank, self.subnet_params.artifact_delay);
         if let Some(start_time) = pool.get_round_start_time(height) {
-            let now = self.time_source.get_relative_time();
+            let now = self._time_source.get_relative_time();
             return now >= start_time + adjusted_notary_delay;
         }
         height == 1
-    }
+    }*/
 
     /// Return true if this node has already published a notarization share
     /// for the given block proposal. Return false otherwise.
@@ -142,27 +146,28 @@ impl Notary {
     /// Notarize and return a `NotarizationShare` for the given block
     fn notarize_block(
         &self,
-        pool: &PoolReader<'_>,
+        _pool: &PoolReader<'_>,
         proposal: Signed<Hashed<Block>, u8>,
     ) -> Option<NotarizationShare> {
-        let height = proposal.content.value.height;
+        let _height = proposal.content.value.height;
         let content: NotarizationShareContent = {
             if self.subnet_params.fast_internet_computer_consensus {
                 // CoD rule 1: first child of each block is acknowledged
-                let is_ack = pool
-                    .get_notarization_shares(height)
-                    .filter(|s| s.signature == self.node_id) // filter out shares not sent by local replica
-                    /* NEW RULES: first block per height
-                    .filter(|s| {
-                        if let NotarizationShareContent::COD(notarization_share_content_cod) = &s.content {
-                            notarization_share_content_cod.block_parent_hash == proposal.content.value.parent   // filter out shares for blocks that do not have the same parent of the block being proposed
-                        }
-                        else {
-                            panic!("no notarization shares of ICC variant when fast_internet_computer_consensus parameter is true");
-                        }
-                    })*/
-                    .count()
-                    == 0; // set 'is_ack' to true if 'proposal' is the first child of its parent for which the local replica creates a notarization share, the latter is also an acknowledgement
+                let is_ack = true;
+                /*pool
+                .get_notarization_shares(height)
+                .filter(|s| s.signature == self.node_id) // filter out shares not sent by local replica */
+                /* NEW RULES: first block per height
+                .filter(|s| {
+                    if let NotarizationShareContent::COD(notarization_share_content_cod) = &s.content {
+                        notarization_share_content_cod.block_parent_hash == proposal.content.value.parent   // filter out shares for blocks that do not have the same parent of the block being proposed
+                    }
+                    else {
+                        panic!("no notarization shares of ICC variant when fast_internet_computer_consensus parameter is true");
+                    }
+                })*/
+                //.count()
+                //== 0; // set 'is_ack' to true if 'proposal' is the first child of its parent for which the local replica creates a notarization share, the latter is also an acknowledgement
                 NotarizationShareContent::COD(NotarizationShareContentCOD::new(
                     proposal.content.value.height,
                     CryptoHashOf::from(proposal.content.hash),
@@ -220,6 +225,7 @@ fn find_lowest_ranked_proposals(pool: &PoolReader<'_>, h: Height) -> Vec<BlockPr
 /// notarized heights, by how far the certified height lags behind the finalized
 /// height, and by how far we have advanced beyond a summary block without
 /// creating a CUP.
+
 pub fn get_adjusted_notary_delay(
     pool: &PoolReader<'_>,
     _height: Height,

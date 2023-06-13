@@ -1,4 +1,4 @@
-use std::{sync::Arc, time::Duration};
+use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 
@@ -11,8 +11,6 @@ use crate::{
     time_source::{system_time_now, TimeSource},
     SubnetParams,
 };
-
-use super::goodifier::block_is_good;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub struct Payload {}
@@ -177,7 +175,7 @@ impl BlockMaker {
 // Return None otherwise.
 fn get_dependencies(
     pool: &PoolReader<'_>,
-    is_fast_internet_computer_consensus: bool,
+    _is_fast_internet_computer_consensus: bool,
 ) -> Option<(RandomBeacon, Block)> {
     let notarized_height = pool.get_notarized_height();
     // println!("Last block notarized at height: {}", notarized_height);
@@ -186,17 +184,6 @@ fn get_dependencies(
     // and then choose the one with the smallest rank among the "good" ones
     let parent = pool
         .get_notarized_blocks(notarized_height)
-        .filter(|block| {
-            if is_fast_internet_computer_consensus {
-                // CoD rule 3a: extend only "good" blocks
-                //let is_good =
-                block_is_good(pool, block)
-                // println!("Notarized block {:?} is good: {}", block, is_good);
-                //is_good
-            } else {
-                true
-            }
-        })
         .min_by(|block1, block2| block1.rank.cmp(&block2.rank));
     match parent {
         Some(parent) => {
@@ -227,13 +214,15 @@ fn already_proposed(pool: &PoolReader<'_>, h: u64, this_node: u8) -> bool {
 // Return true if the time since round start is greater than the required block
 // maker delay for the given rank.
 fn is_time_to_make_block(
-    pool: &PoolReader<'_>,
-    height: u64,
+    _pool: &PoolReader<'_>,
+    _height: u64,
     rank: u8,
-    time_source: &dyn TimeSource,
-    node_id: u8,
-    proposer_delay: u64,
+    _time_source: &dyn TimeSource,
+    _node_id: u8,
+    _proposer_delay: u64,
 ) -> bool {
+    rank == 0
+    /*
     let block_maker_delay = get_block_maker_delay(rank, proposer_delay);
     let just_make_sure_omg = Duration::from_secs(60);
     match pool.get_round_start_time(height) {
@@ -251,18 +240,18 @@ fn is_time_to_make_block(
             }
             false
         }
-    }
+    }*/
 }
 
 /// Calculate the required delay for block making based on the block maker's
 /// rank.
-fn get_block_maker_delay(rank: u8, proposer_delay: u64) -> Duration {
+/*fn get_block_maker_delay(rank: u8, proposer_delay: u64) -> Duration {
     if rank == 0 {
         Duration::from_millis(0)
     } else {
         (Duration::from_millis(proposer_delay) * rank as u32) + Duration::from_secs(60)
     }
-}
+}*/
 
 /// Return the validated block proposals with the lowest rank at height `h`, if
 /// there are any. Else return `None`.
