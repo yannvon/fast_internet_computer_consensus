@@ -178,7 +178,7 @@ impl<'a> PoolReader<'a> {
 
     pub fn get_finalization_time(&self, height: Height, _my_node_id: u8) -> Duration {
         let current_time = system_time_now();
-        let _i_produced = self
+        let i_produced = self
             .pool
             .validated()
             .i_made_a_block_artifact()
@@ -189,16 +189,16 @@ impl<'a> PoolReader<'a> {
                 timestamp: current_time, //Time(current_time.0 - Duration::from_secs(30).as_nanos() as u64),
                 my_id: 0,
             });
-
+        /*
         let val = self.pool.validated();
         let mast = val
             .notarization()
             .get_by_height(height - 1)
             .flat_map(|x| val.get_timestamp(&x.get_id()))
             .min();
-
+        */
         //if let Some(_round_start_time) = self.get_round_start_time(height) {
-        let finalization_time = current_time - mast.unwrap_or(current_time); //i_produced.timestamp;
+        let finalization_time = current_time - i_produced.timestamp; //- mast.unwrap_or(current_time);
         finalization_time
         //}
         //None
