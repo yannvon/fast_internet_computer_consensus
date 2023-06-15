@@ -118,11 +118,6 @@ impl Peer {
             finalization_times,
             manager: None,
         }
-        // println!(
-        //     "Local node initialized with number: {} and peer id: {:?}",
-        //     local_peer.replica_number, local_peer_id
-        // );
-        //local_peer
     }
 
     pub fn listen_for_dialing(&mut self) {

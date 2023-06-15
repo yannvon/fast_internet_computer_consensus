@@ -186,7 +186,7 @@ impl<'a> PoolReader<'a> {
             .next() //.find(|art| art.my_id == my_node_id)
             .unwrap_or(IMadeABlockArtifact {
                 block_height: height,
-                timestamp: current_time, //Time(current_time.0 - Duration::from_secs(30).as_nanos() as u64),
+                maker_time: current_time, //Time(current_time.0 - Duration::from_secs(30).as_nanos() as u64),
                 my_id: 0,
             });
         /*
@@ -198,7 +198,7 @@ impl<'a> PoolReader<'a> {
             .min();
         */
         //if let Some(_round_start_time) = self.get_round_start_time(height) {
-        let finalization_time = current_time - i_produced.timestamp; //- mast.unwrap_or(current_time);
+        let finalization_time = current_time - i_produced.maker_time; //- mast.unwrap_or(current_time);
         finalization_time
         //}
         //None

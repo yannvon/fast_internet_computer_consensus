@@ -98,6 +98,11 @@ impl ConsensusImpl {
 
         let pool_reader = PoolReader::new(pool);
 
+        let validate = || {
+            self.validator
+                .on_state_change(&pool_reader, Arc::clone(&finalization_times))
+        };
+
         let acknowledge = || {
             if self.subnet_params.fast_internet_computer_consensus {
                 let change_set = add_all_to_validated(
@@ -117,16 +122,6 @@ impl ConsensusImpl {
             (change_set, to_broadcast)
         };
 
-        let aggregate = || {
-            let change_set = add_all_to_validated(
-                self.aggregator
-                    .on_state_change(&pool_reader, Arc::clone(&finalization_times)),
-            );
-            // aggregation of shares does not have to be broadcasted as each node can compute it locally based on its consensus pool
-            let to_broadcast = true;
-            (change_set, to_broadcast)
-        };
-
         let notarize = || {
             let change_set = add_all_to_validated(self.notary.on_state_change(&pool_reader));
             let to_broadcast = true;
@@ -139,9 +134,14 @@ impl ConsensusImpl {
             (change_set, to_broadcast)
         };
 
-        let validate = || {
-            self.validator
-                .on_state_change(&pool_reader, Arc::clone(&finalization_times))
+        let aggregate = || {
+            let change_set = add_all_to_validated(
+                self.aggregator
+                    .on_state_change(&pool_reader, Arc::clone(&finalization_times)),
+            );
+            // aggregation of shares does not have to be broadcasted as each node can compute it locally based on its consensus pool
+            let to_broadcast = false;
+            (change_set, to_broadcast)
         };
 
         // must be the last component called as it can return the same artifact in multiple iterations

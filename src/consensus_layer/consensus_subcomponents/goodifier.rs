@@ -22,7 +22,7 @@ pub struct GoodnessArtifact {
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct IMadeABlockArtifact {
     pub block_height: Height,
-    pub timestamp: Time,
+    pub maker_time: Time,
     pub my_id: u8,
 }
 

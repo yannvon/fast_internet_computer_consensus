@@ -96,7 +96,7 @@ impl BlockMaker {
             if block_proposal.is_some() {
                 let block_proposed_artifact = IMadeABlockArtifact {
                     block_height: height,
-                    timestamp: system_time_now(),
+                    maker_time: system_time_now(),
                     my_id: self.node_id,
                 };
                 vec![
