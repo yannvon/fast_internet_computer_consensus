@@ -182,7 +182,7 @@ impl<'a> PoolReader<'a> {
             .validated()
             .i_made_a_block_artifact()
             .get_by_height(height)
-            .find(|art| art.my_id == my_node_id)
+            .next() //.find(|art| art.my_id == my_node_id)
             .unwrap_or(IMadeABlockArtifact {
                 block_height: height,
                 timestamp: current_time, //Time(current_time.0 - Duration::from_secs(30).as_nanos() as u64),
