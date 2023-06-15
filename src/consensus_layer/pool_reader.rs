@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use crate::consensus_layer::artifacts::ConsensusMessageHashable;
 use crate::{consensus_layer::pool::ConsensusPoolImpl, time_source::system_time_now};
 
 use super::{
@@ -175,9 +176,9 @@ impl<'a> PoolReader<'a> {
         get_notarization_time(prev_height) //.map(|notarization_time| notarization_time)
     }*/
 
-    pub fn get_finalization_time(&self, height: Height, my_node_id: u8) -> Duration {
+    pub fn get_finalization_time(&self, height: Height, _my_node_id: u8) -> Duration {
         let current_time = system_time_now();
-        let i_produced = self
+        let _i_produced = self
             .pool
             .validated()
             .i_made_a_block_artifact()
@@ -189,9 +190,16 @@ impl<'a> PoolReader<'a> {
                 my_id: 0,
             });
 
+        let val = self.pool.validated();
+        let mast = val
+            .notarization()
+            .get_by_height(height - 1)
+            .flat_map(|x| val.get_timestamp(&x.get_id()))
+            .min();
+
         //if let Some(_round_start_time) = self.get_round_start_time(height) {
-        let finalization_time = current_time - i_produced.timestamp;
-        // println!("Time to finalize block: {:?}", finalization_time);
+        let finalization_time =
+            current_time - mast.unwrap_or(current_time + Duration::from_millis(100)); //i_produced.timestamp;
         finalization_time
         //}
         //None

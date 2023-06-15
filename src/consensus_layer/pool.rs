@@ -260,13 +260,11 @@ impl ConsensusPoolImpl {
                 }
                 ChangeAction::MoveToValidated(to_move) => {
                     let msg_id = to_move.get_id();
-                    let timestamp = self.unvalidated.get_timestamp(&msg_id).unwrap_or_else(|| {
-                        panic!("Timestmap is not found for MoveToValidated: {:?}", to_move)
-                    });
                     unvalidated_ops.remove(msg_id);
+
                     validated_ops.insert(ValidatedConsensusArtifact {
                         msg: to_move,
-                        timestamp,
+                        timestamp: time_source.get_relative_time(),
                     });
                 }
             }

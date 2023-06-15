@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::sync::RwLock;
+//use std::sync::RwLock;
 use std::time::Duration;
 use std::time::SystemTime;
 
@@ -44,7 +44,7 @@ pub trait TimeSource: Send + Sync {
 
 /// Time source using the system time.
 pub struct SysTimeSource {
-    current_time: RwLock<Time>,
+    //current_time: RwLock<Time>,
 }
 
 impl Default for SysTimeSource {
@@ -58,15 +58,11 @@ impl SysTimeSource {
     /// Create a new [SysTimeSource].
     pub fn new() -> Self {
         SysTimeSource {
-            current_time: RwLock::new(system_time_now()),
+        //    current_time: RwLock::new(system_time_now()),
         }
     }
 
-    /// Update time to the new system time value.
-    ///
-    /// It will skip the update and return an error if the new system time is
-    /// less than the previous value.
-    pub fn update_time(&self) -> Result<(), ()> {
+    /*pub fn update_time(&self) -> Result<(), ()> {
         let mut current_time = self.current_time.write().unwrap();
         let t = system_time_now();
         if *current_time > t {
@@ -75,12 +71,13 @@ impl SysTimeSource {
             *current_time = t;
             Ok(())
         }
-    }
+    }*/
 }
 
 impl TimeSource for SysTimeSource {
     fn get_relative_time(&self) -> Time {
-        *self.current_time.read().unwrap()
+        //*self.current_time.read().unwrap()
+        system_time_now()
     }
 }
 
