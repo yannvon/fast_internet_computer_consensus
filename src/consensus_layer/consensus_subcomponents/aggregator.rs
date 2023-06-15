@@ -86,8 +86,48 @@ impl ShareAggregator {
         let fin_height = pool.get_finalized_height() + 1;
         let next_notar_height = pool.get_notarized_height() + 1;
         let mut stuff = vec![];
+
+        let mut turbo_height = pool.get_notarized_height() + 1;
+        while {
+            let notarization_shares = pool.get_notarization_shares(turbo_height);
+            if notarization_shares.count()
+                > ((self.subnet_params.total_nodes_number
+                    + self.subnet_params.byzantine_nodes_number)
+                    / 2) as usize
+            {
+                stuff.extend({
+                    let notary_content = pool
+                        .get_notarization_shares(turbo_height)
+                        .next()
+                        .unwrap()
+                        .content;
+                    let notary_content = match notary_content {
+                        NotarizationShareContent::COD(notary_content) => NotarizationContent {
+                            height: notary_content.height,
+                            block: notary_content.block,
+                        },
+                        NotarizationShareContent::ICC(notary_content) => NotarizationContent {
+                            height: notary_content.height,
+                            block: notary_content.block,
+                        },
+                    };
+                    Some(ConsensusMessage::Notarization(Notarization {
+                        content: NotarizationContent {
+                            height: notary_content.height,
+                            block: notary_content.block,
+                        },
+                        signature: 0, // committee signature
+                    }))
+                });
+                turbo_height += 1;
+                true
+            } else {
+                false
+            }
+        } {}
+
         if self.subnet_params.fast_internet_computer_consensus {
-            for height in fin_height..=next_notar_height {
+            for height in fin_height..turbo_height {
                 let shares_num = pool.get_notarization_shares(height).count();
                 if shares_num
                     >= (self.subnet_params.total_nodes_number
@@ -119,37 +159,6 @@ impl ShareAggregator {
                 }
             }
         }
-
-        let height = pool.get_notarized_height() + 1;
-        let notarization_shares = pool.get_notarization_shares(height);
-        stuff.extend(
-            if notarization_shares.count()
-                > ((self.subnet_params.total_nodes_number
-                    + self.subnet_params.byzantine_nodes_number)
-                    / 2) as usize
-            {
-                let notary_content = pool.get_notarization_shares(height).next().unwrap().content;
-                let notary_content = match notary_content {
-                    NotarizationShareContent::COD(notary_content) => NotarizationContent {
-                        height: notary_content.height,
-                        block: notary_content.block,
-                    },
-                    NotarizationShareContent::ICC(notary_content) => NotarizationContent {
-                        height: notary_content.height,
-                        block: notary_content.block,
-                    },
-                };
-                Some(ConsensusMessage::Notarization(Notarization {
-                    content: NotarizationContent {
-                        height: notary_content.height,
-                        block: notary_content.block,
-                    },
-                    signature: 0, // committee signature
-                }))
-            } else {
-                None
-            },
-        );
 
         stuff
     }
