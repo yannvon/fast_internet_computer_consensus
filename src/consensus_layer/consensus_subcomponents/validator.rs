@@ -10,22 +10,19 @@ use crate::{
         height_index::Height,
         pool_reader::PoolReader,
     },
-    time_source::TimeSource,
     FinalizationType, HeightMetrics,
 };
 
 pub struct Validator {
     my_node_id: u8,
     _schedule: RoundRobin,
-    _time_source: Arc<dyn TimeSource>,
 }
 
 impl Validator {
-    pub fn new(my_node_id: u8, time_source: Arc<dyn TimeSource>) -> Self {
+    pub fn new(my_node_id: u8) -> Self {
         Self {
             my_node_id,
             _schedule: RoundRobin::default(),
-            _time_source: time_source,
         }
     }
 

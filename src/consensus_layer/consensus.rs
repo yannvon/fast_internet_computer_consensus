@@ -3,7 +3,7 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-use crate::{time_source::TimeSource, HeightMetrics, SubnetParams};
+use crate::{HeightMetrics, SubnetParams};
 
 use super::{
     artifacts::{ChangeAction, ChangeSet, ConsensusMessage},
@@ -52,38 +52,20 @@ pub struct ConsensusImpl {
     notary: Notary,
     aggregator: ShareAggregator,
     validator: Validator,
-    _time_source: Arc<dyn TimeSource>,
     schedule: RoundRobin,
     subnet_params: SubnetParams,
 }
 
 impl ConsensusImpl {
-    pub fn new(
-        replica_number: u8,
-        subnet_params: SubnetParams,
-        time_source: Arc<dyn TimeSource>,
-    ) -> Self {
+    pub fn new(replica_number: u8, subnet_params: SubnetParams) -> Self {
         Self {
-            goodifier: Goodifier::new(
-                replica_number,
-                subnet_params.clone(),
-                Arc::clone(&time_source) as Arc<_>,
-            ),
+            goodifier: Goodifier::new(replica_number, subnet_params.clone()),
             acknowledger: Acknowledger::new(replica_number, subnet_params.clone()),
             finalizer: Finalizer::new(replica_number, subnet_params.clone()),
-            block_maker: BlockMaker::new(
-                replica_number,
-                subnet_params.clone(),
-                Arc::clone(&time_source) as Arc<_>,
-            ),
-            notary: Notary::new(
-                replica_number,
-                subnet_params.clone(),
-                Arc::clone(&time_source) as Arc<_>,
-            ),
+            block_maker: BlockMaker::new(replica_number, subnet_params.clone()),
+            notary: Notary::new(replica_number, subnet_params.clone()),
             aggregator: ShareAggregator::new(replica_number, subnet_params.clone()),
-            validator: Validator::new(replica_number, Arc::clone(&time_source)),
-            _time_source: time_source,
+            validator: Validator::new(replica_number),
             schedule: RoundRobin::default(),
             subnet_params,
         }

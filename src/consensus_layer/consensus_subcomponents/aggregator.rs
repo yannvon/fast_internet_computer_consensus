@@ -84,7 +84,6 @@ impl ShareAggregator {
         finalization_times: Arc<RwLock<BTreeMap<Height, Option<HeightMetrics>>>>,
     ) -> Vec<ConsensusMessage> {
         let fin_height = pool.get_finalized_height() + 1;
-        let next_notar_height = pool.get_notarized_height() + 1;
         let mut stuff = vec![];
 
         let mut turbo_height = pool.get_notarized_height() + 1;

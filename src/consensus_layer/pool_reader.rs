@@ -198,8 +198,7 @@ impl<'a> PoolReader<'a> {
             .min();
 
         //if let Some(_round_start_time) = self.get_round_start_time(height) {
-        let finalization_time =
-            current_time - mast.unwrap_or(current_time + Duration::from_millis(100)); //i_produced.timestamp;
+        let finalization_time = current_time - mast.unwrap_or(current_time); //i_produced.timestamp;
         finalization_time
         //}
         //None

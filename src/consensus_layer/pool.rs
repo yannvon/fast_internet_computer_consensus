@@ -2,7 +2,7 @@ use std::{collections::BTreeMap, fmt::Debug};
 
 use crate::{
     crypto::{CryptoHash, CryptoHashOf},
-    time_source::{Time, TimeSource},
+    time_source::{system_time_now, Time},
 };
 
 use super::{
@@ -243,7 +243,7 @@ impl ConsensusPoolImpl {
         self.apply_changes_unvalidated(ops);
     }
 
-    pub fn apply_changes(&mut self, time_source: &dyn TimeSource, change_set: ChangeSet) {
+    pub fn apply_changes(&mut self, change_set: ChangeSet) {
         let mut unvalidated_ops = PoolSectionOps::new();
         let mut validated_ops = PoolSectionOps::new();
 
@@ -255,7 +255,7 @@ impl ConsensusPoolImpl {
                 ChangeAction::AddToValidated(to_add) => {
                     validated_ops.insert(ValidatedConsensusArtifact {
                         msg: to_add,
-                        timestamp: time_source.get_relative_time(),
+                        timestamp: system_time_now(),
                     });
                 }
                 ChangeAction::MoveToValidated(to_move) => {
@@ -264,7 +264,7 @@ impl ConsensusPoolImpl {
 
                     validated_ops.insert(ValidatedConsensusArtifact {
                         msg: to_move,
-                        timestamp: time_source.get_relative_time(),
+                        timestamp: system_time_now(),
                     });
                 }
             }
