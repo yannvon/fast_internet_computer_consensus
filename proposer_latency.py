@@ -6,17 +6,12 @@ import json
 import matplotlib.pyplot as plt
 import matplotlib
 
-#folder = "FICC_7_2_0_3000_300_1686479937" 
-#folder = "FICC_7_1_1_3000_300_1686481701" # Weird spikes for singapore replica
-#folder = "FICC_7_2_0_3000_100_1686511357" # Kobi new proposer latency, p=0
-#folder = "FICC_7_1_1_3000_100_1686513466" # Kobi new proposer latency, p=1 (red lines must be wrong, right?)
-#folder = "FICC_7_1_1_3000_100_1686514196" # Kobi new proposer latency, p=1 (red lines must be wrong, right?)
-folder = "FICC_16_3_3_5000_300_1686527731" 
+folder = "16_5" 
 
 N = 16
 
 def getBenchmarks(n_replica):
-    with open(f'./benchmark/{folder}/benchmark_results_{n_replica}.json', 'r') as f:
+    with open(f'./{folder}/benchmark_results_{n_replica}.json', 'r') as f:
         return json.loads(f.read())
 
 def fillMissingElements(iterations, metrics, default_element):
@@ -64,11 +59,11 @@ def processResults(latencies, filled_iterations, filled_finalization_types):
     )
 
 def plotLatencies(ax, n_replica, filled_iterations, filled_latencies, filled_finalization_types):
-    colors = ["green", "blue", "grey"]
+    colors = ['#219ebc', "#ffb703", "#fb8500"]
     color_labels = {
-        "green": "FP-finalized block",
-        "blue": "IC-finalized block",
-        "grey": "finalization from peer"
+        "#219ebc": "FP-finalized block",
+        "#ffb703": "IC-finalized block",
+        "#fb8500": "finalization from peer"
     }
     fp_bar = None
     ic_bar = None
@@ -153,9 +148,43 @@ def plotAllProposers():
         plt.close()
         #plt.show()
 
+def plotAll():
+    for i in range(1,N+1):
+        benchmark = getBenchmarks(i)
+        plt.figure(figsize=(8,6), dpi=300)
+        plt.plot() 
+        iterations = [int(iteration) for iteration in benchmark["finalization_times"].keys()]
+        latencies = [metrics["latency"]["secs"]+metrics["latency"]["nanos"]*1e-9 for metrics in benchmark["finalization_times"].values()]
+        filled_iterations, filled_latencies = fillMissingElements(iterations, latencies, 0)
+        finalization_types = [metrics["fp_finalization"] for metrics in benchmark["finalization_times"].values()]
+        _, filled_finalization_types = fillMissingElements(iterations, finalization_types, "-")
+
+        (
+            average_latency,
+            total_fp_finalizations,
+            total_ic_finalizations,
+            total_dk_finalizations,
+            total_non_finalizations,
+        ) = processResults(latencies, filled_iterations, filled_finalization_types)
+
+        ax = plt.gca()
+        ax.set_xlabel("Round")
+        ax.set_ylabel("Latency [s]")
+        
+        plotLatencies(ax, i, filled_iterations, filled_latencies, filled_finalization_types)
+
+        printMetrics(
+            average_latency,
+            total_fp_finalizations,
+            total_ic_finalizations, 
+            total_dk_finalizations,
+            total_non_finalizations,
+        )
+        plt.savefig(f'replica{i}.png')
+        plt.close()
 
 def plotAgregate():
-    plt.figure(figsize=(12,8), dpi=300)
+    plt.figure(figsize=(8,6), dpi=300)
     plt.plot() 
     ax = plt.gca()
     ax.set_xlabel("Round")
@@ -182,7 +211,7 @@ def plotAgregate():
         _, filled_finalization_types = fillMissingElements(iterations, finalization_types, "-")
 
         for j, type in enumerate(filled_finalization_types):
-            if (-i) % N != j % N:
+            if (1-i) % N != j % N:
                 continue
             elif type == "FP":
                 fp_bar = ax.bar(filled_iterations[j], filled_latencies[j], width=1, color=colors[0], label=color_labels[colors[0]])
@@ -196,13 +225,14 @@ def plotAgregate():
     ax.legend(handles, labels, loc="upper right")
 
     
-    plt.savefig(f'combine_proposer_latencies.png')
+    plt.savefig(f'prop_latencies_{folder}.png')
     plt.close()
 
 #benchmark = getBenchmarks(1)
 
 #getResults()
 
+plotAll()
 #plotAllProposers()
 
 plotAgregate()

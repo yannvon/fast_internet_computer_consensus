@@ -1,0 +1,162 @@
+peers = [
+    # Jakarta
+    {
+        "number": "16",
+        "ip": "108.136.215.50",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Bahrain
+    {
+        "number": "15",
+        "ip": "15.184.220.208",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Hong Kong
+    {
+        "number": "14",
+        "ip": "18.162.194.131",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # N.Virginia
+    {
+        "number": "13",
+        "ip": "35.173.245.20",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Ohio
+    {
+        "number": "12",
+        "ip": "3.22.75.75",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Paris
+    {
+        "number": "11",
+        "ip": "52.47.154.248",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Tokyo
+    {
+        "number": "10",
+        "ip": "54.238.218.126",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Mumbai
+    {
+        "number": "9",
+        "ip": "3.111.33.248",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Zurich
+    {
+        "number": "8",
+        "ip": "16.62.65.183",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Montreal
+    {
+        "number": "7",
+        "ip": "3.99.221.224",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # London
+    {
+        "number": "6",
+        "ip": "3.8.94.18",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Oregon
+    {
+        "number": "5",
+        "ip": "54.188.124.179",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Ohio
+    {
+        "number": "4",
+        "ip": "18.221.207.66",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Cali
+    {
+        "number": "3",
+        "ip": "54.183.129.110",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Singapore
+    {
+        "number": "2",
+        "ip": "13.212.154.248",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Seoul
+    {
+        "number": "1",
+        "ip": "13.209.9.52",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+]

@@ -5,11 +5,11 @@ import os
 import json
 import matplotlib.pyplot as plt
 
-F = 5
+F = 1
 P = 0
 T = 300 # Rtuntime
 D = 5000 # Rank delay
-FICC = False
+FICC = True
 BI=10
 PI=20
 BIRU=100
@@ -18,10 +18,10 @@ RUT=1
 UPDATE_REPO = False
 commit = "cb76ac888b0539a3" # Put hash of commit, if update repo is necessary.
 
-backupPeers = [ 
+peers = [ 
     # Tokyo
     {
-        "number": "16",
+        "number": "6",
         "ip": "52.194.253.125",
         "web_server_port": "56790",
         "libp2p_port": "56789",
@@ -31,7 +31,7 @@ backupPeers = [
     },
     # Jakarta
     {
-        "number": "16",
+        "number": "5",
         "ip": "108.136.215.50",
         "web_server_port": "56790",
         "libp2p_port": "56789",
@@ -41,7 +41,7 @@ backupPeers = [
     },
     # London
     {
-        "number": "16",
+        "number": "4",
         "ip": "3.8.94.18",
         "web_server_port": "56790",
         "libp2p_port": "56789",
@@ -51,7 +51,7 @@ backupPeers = [
     },
     # Paris
     {
-        "number": "16",
+        "number": "3",
         "ip": "52.47.154.248",
         "web_server_port": "56790",
         "libp2p_port": "56789",
@@ -61,7 +61,7 @@ backupPeers = [
     },
     # Cali
     {
-        "number": "16",
+        "number": "2",
         "ip": "54.183.129.110",
         "web_server_port": "56790",
         "libp2p_port": "56789",
@@ -71,8 +71,8 @@ backupPeers = [
     },
     # Ohio
     {
-        "number": "16",
-        "ip": "18.221.207.66	",
+        "number": "1",
+        "ip": "18.221.207.66",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -81,7 +81,7 @@ backupPeers = [
     },
 ]
 
-peers = [
+peersWorld = [
     # Sao Paolo
     {
         "number": "16",
@@ -107,7 +107,7 @@ peers = [
         "number": "14",
         "ip": "15.184.220.208",
         "web_server_port": "56790",
-        "libp2p_port": "56789",
+        "libp2p_port": "56789", 
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
