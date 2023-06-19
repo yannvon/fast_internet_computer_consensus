@@ -1,11 +1,10 @@
-use std::{sync::Arc, time::Duration};
+use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
 
 use crate::{
     consensus_layer::{artifacts::ConsensusMessage, height_index::Height, pool_reader::PoolReader},
     crypto::{CryptoHashOf, Hashed, Signed},
-    time_source::TimeSource,
     SubnetParams,
 };
 
@@ -70,19 +69,13 @@ pub type NotarizationShare = Signed<NotarizationShareContent, u8>;
 pub struct Notary {
     node_id: u8,
     subnet_params: SubnetParams,
-    _time_source: Arc<dyn TimeSource>,
 }
 
 impl Notary {
-    pub fn new(
-        node_id: u8,
-        subnet_params: SubnetParams,
-        _time_source: Arc<dyn TimeSource>,
-    ) -> Self {
+    pub fn new(node_id: u8, subnet_params: SubnetParams) -> Self {
         Self {
             node_id,
             subnet_params,
-            _time_source,
         }
     }
 

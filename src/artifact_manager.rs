@@ -12,7 +12,6 @@ use crate::{
         height_index::Height,
         ConsensusProcessor,
     },
-    time_source::SysTimeSource,
     SubnetParams,
 };
 
@@ -42,7 +41,6 @@ impl ArtifactProcessorManager {
     pub fn new(
         replica_number: u8,
         subnet_params: SubnetParams,
-        time_source: Arc<SysTimeSource>,
         sender_outgoing_artifact: Sender<ConsensusMessage>,
         finalization_times: Arc<RwLock<BTreeMap<Height, Option<HeightMetrics>>>>,
     ) -> Self {
@@ -50,11 +48,7 @@ impl ArtifactProcessorManager {
         let (sender_incoming_request, receiver_incoming_request) =
             crossbeam_channel::unbounded::<ProcessRequest>();
 
-        let client = Box::new(ConsensusProcessor::new(
-            replica_number,
-            subnet_params.clone(),
-            Arc::clone(&time_source) as Arc<_>,
-        ));
+        let client = ConsensusProcessor::new(replica_number, subnet_params.clone());
 
         // Spawn the processor thread
         let sender_incoming_request_cl = sender_incoming_request.clone();
@@ -64,7 +58,6 @@ impl ArtifactProcessorManager {
             .spawn(move || {
                 Self::process_messages(
                     pending_artifacts_cl,
-                    time_source,
                     client,
                     sender_incoming_request_cl,
                     receiver_incoming_request,
@@ -84,8 +77,7 @@ impl ArtifactProcessorManager {
 
     fn process_messages(
         pending_artifacts: Arc<Mutex<Vec<UnvalidatedArtifact<ConsensusMessage>>>>,
-        time_source: Arc<SysTimeSource>,
-        client: Box<ConsensusProcessor>,
+        client: ConsensusProcessor,
         sender_incoming_request: Sender<ProcessRequest>,
         receiver_incoming_request: Receiver<ProcessRequest>,
         sender_outgoing_artifact: Sender<ConsensusMessage>,
@@ -100,8 +92,6 @@ impl ArtifactProcessorManager {
 
             match ret {
                 Ok(_) | Err(RecvTimeoutError::Timeout) => {
-                    time_source.update_time().ok();
-
                     let artifacts = {
                         let mut artifacts = Vec::new();
                         let mut received_artifacts = pending_artifacts.lock().unwrap();
@@ -109,11 +99,8 @@ impl ArtifactProcessorManager {
                         artifacts
                     };
 
-                    let (adverts, result) = client.process_changes(
-                        time_source.as_ref(),
-                        artifacts,
-                        Arc::clone(&finalization_times),
-                    );
+                    let (adverts, result) =
+                        client.process_changes(artifacts, Arc::clone(&finalization_times));
 
                     if let ProcessingResult::StateChanged = result {
                         sender_incoming_request

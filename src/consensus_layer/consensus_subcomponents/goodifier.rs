@@ -1,11 +1,9 @@
-use std::sync::Arc;
-
 use serde::{Deserialize, Serialize};
 
 use crate::{
     consensus_layer::{artifacts::ConsensusMessage, height_index::Height, pool_reader::PoolReader},
     crypto::CryptoHashOf,
-    time_source::{Time, TimeSource},
+    time_source::Time,
     SubnetParams,
 };
 
@@ -24,26 +22,20 @@ pub struct GoodnessArtifact {
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct IMadeABlockArtifact {
     pub block_height: Height,
-    pub timestamp: Time,
+    pub maker_time: Time,
     pub my_id: u8,
 }
 
 pub struct Goodifier {
     _node_id: u8,
     _subnet_params: SubnetParams,
-    _time_source: Arc<dyn TimeSource>,
 }
 
 impl Goodifier {
-    pub fn new(
-        _node_id: u8,
-        _subnet_params: SubnetParams,
-        _time_source: Arc<dyn TimeSource>,
-    ) -> Self {
+    pub fn new(_node_id: u8, _subnet_params: SubnetParams) -> Self {
         Self {
             _node_id,
             _subnet_params,
-            _time_source,
         }
     }
 

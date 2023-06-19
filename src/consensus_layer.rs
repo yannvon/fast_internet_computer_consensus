@@ -9,7 +9,6 @@ use crate::consensus_layer::consensus::ConsensusImpl;
 
 pub mod artifacts;
 use crate::consensus_layer::artifacts::{ChangeAction, ConsensusMessage, UnvalidatedArtifact};
-use crate::time_source::TimeSource;
 
 pub mod pool_reader;
 
@@ -28,24 +27,15 @@ pub struct ConsensusProcessor {
 }
 
 impl ConsensusProcessor {
-    pub fn new(
-        replica_number: u8,
-        subnet_params: SubnetParams,
-        time_source: Arc<dyn TimeSource>,
-    ) -> Self {
+    pub fn new(replica_number: u8, subnet_params: SubnetParams) -> Self {
         Self {
             consensus_pool: Arc::new(RwLock::new(ConsensusPoolImpl::new())),
-            client: Box::new(ConsensusImpl::new(
-                replica_number,
-                subnet_params,
-                Arc::clone(&time_source) as Arc<_>,
-            )),
+            client: Box::new(ConsensusImpl::new(replica_number, subnet_params)),
         }
     }
 
     pub fn process_changes(
         &self,
-        time_source: &dyn TimeSource,
         artifacts: Vec<UnvalidatedArtifact<ConsensusMessage>>,
         finalization_times: Arc<RwLock<BTreeMap<Height, Option<HeightMetrics>>>>,
     ) -> (Vec<ConsensusMessage>, ProcessingResult) {
@@ -90,7 +80,7 @@ impl ConsensusProcessor {
         self.consensus_pool
             .write()
             .unwrap()
-            .apply_changes(time_source, change_set);
+            .apply_changes(change_set);
 
         (adverts, changed)
     }

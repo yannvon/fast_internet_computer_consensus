@@ -3,7 +3,7 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-use crate::{time_source::TimeSource, HeightMetrics, SubnetParams};
+use crate::{HeightMetrics, SubnetParams};
 
 use super::{
     artifacts::{ChangeAction, ChangeSet, ConsensusMessage},
@@ -52,38 +52,20 @@ pub struct ConsensusImpl {
     notary: Notary,
     aggregator: ShareAggregator,
     validator: Validator,
-    _time_source: Arc<dyn TimeSource>,
     schedule: RoundRobin,
     subnet_params: SubnetParams,
 }
 
 impl ConsensusImpl {
-    pub fn new(
-        replica_number: u8,
-        subnet_params: SubnetParams,
-        time_source: Arc<dyn TimeSource>,
-    ) -> Self {
+    pub fn new(replica_number: u8, subnet_params: SubnetParams) -> Self {
         Self {
-            goodifier: Goodifier::new(
-                replica_number,
-                subnet_params.clone(),
-                Arc::clone(&time_source) as Arc<_>,
-            ),
+            goodifier: Goodifier::new(replica_number, subnet_params.clone()),
             acknowledger: Acknowledger::new(replica_number, subnet_params.clone()),
             finalizer: Finalizer::new(replica_number, subnet_params.clone()),
-            block_maker: BlockMaker::new(
-                replica_number,
-                subnet_params.clone(),
-                Arc::clone(&time_source) as Arc<_>,
-            ),
-            notary: Notary::new(
-                replica_number,
-                subnet_params.clone(),
-                Arc::clone(&time_source) as Arc<_>,
-            ),
+            block_maker: BlockMaker::new(replica_number, subnet_params.clone()),
+            notary: Notary::new(replica_number, subnet_params.clone()),
             aggregator: ShareAggregator::new(replica_number, subnet_params.clone()),
-            validator: Validator::new(replica_number, Arc::clone(&time_source)),
-            _time_source: time_source,
+            validator: Validator::new(replica_number),
             schedule: RoundRobin::default(),
             subnet_params,
         }
@@ -116,6 +98,11 @@ impl ConsensusImpl {
 
         let pool_reader = PoolReader::new(pool);
 
+        let validate = || {
+            self.validator
+                .on_state_change(&pool_reader, Arc::clone(&finalization_times))
+        };
+
         let acknowledge = || {
             if self.subnet_params.fast_internet_computer_consensus {
                 let change_set = add_all_to_validated(
@@ -135,16 +122,6 @@ impl ConsensusImpl {
             (change_set, to_broadcast)
         };
 
-        let aggregate = || {
-            let change_set = add_all_to_validated(
-                self.aggregator
-                    .on_state_change(&pool_reader, Arc::clone(&finalization_times)),
-            );
-            // aggregation of shares does not have to be broadcasted as each node can compute it locally based on its consensus pool
-            let to_broadcast = true;
-            (change_set, to_broadcast)
-        };
-
         let notarize = || {
             let change_set = add_all_to_validated(self.notary.on_state_change(&pool_reader));
             let to_broadcast = true;
@@ -157,9 +134,14 @@ impl ConsensusImpl {
             (change_set, to_broadcast)
         };
 
-        let validate = || {
-            self.validator
-                .on_state_change(&pool_reader, Arc::clone(&finalization_times))
+        let aggregate = || {
+            let change_set = add_all_to_validated(
+                self.aggregator
+                    .on_state_change(&pool_reader, Arc::clone(&finalization_times)),
+            );
+            // aggregation of shares does not have to be broadcasted as each node can compute it locally based on its consensus pool
+            let to_broadcast = false;
+            (change_set, to_broadcast)
         };
 
         // must be the last component called as it can return the same artifact in multiple iterations

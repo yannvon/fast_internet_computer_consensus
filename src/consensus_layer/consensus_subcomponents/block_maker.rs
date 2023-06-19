@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -8,7 +6,7 @@ use crate::{
         height_index::Height, pool_reader::PoolReader,
     },
     crypto::{Hashed, Signed},
-    time_source::{system_time_now, TimeSource},
+    time_source::system_time_now,
     SubnetParams,
 };
 
@@ -63,15 +61,13 @@ pub struct RandomBeacon {}
 pub struct BlockMaker {
     node_id: u8,
     subnet_params: SubnetParams,
-    time_source: Arc<dyn TimeSource>,
 }
 
 impl BlockMaker {
-    pub fn new(node_id: u8, subnet_params: SubnetParams, time_source: Arc<dyn TimeSource>) -> Self {
+    pub fn new(node_id: u8, subnet_params: SubnetParams) -> Self {
         Self {
             node_id,
             subnet_params,
-            time_source,
         }
     }
 
@@ -89,7 +85,6 @@ impl BlockMaker {
                 pool,
                 height,
                 rank,
-                self.time_source.as_ref(),
                 my_node_id,
                 self.subnet_params.artifact_delay,
             )
@@ -101,7 +96,7 @@ impl BlockMaker {
             if block_proposal.is_some() {
                 let block_proposed_artifact = IMadeABlockArtifact {
                     block_height: height,
-                    timestamp: system_time_now(),
+                    maker_time: system_time_now(),
                     my_id: self.node_id,
                 };
                 vec![
@@ -217,7 +212,6 @@ fn is_time_to_make_block(
     _pool: &PoolReader<'_>,
     _height: u64,
     rank: u8,
-    _time_source: &dyn TimeSource,
     _node_id: u8,
     _proposer_delay: u64,
 ) -> bool {

@@ -27,7 +27,7 @@ use crate::{
         height_index::Height,
     },
     crypto::{Hashed, Signed},
-    time_source::{SysTimeSource, TimeSource},
+    time_source::system_time_now,
     HeightMetrics, SubnetParams,
 };
 
@@ -70,7 +70,6 @@ pub struct Peer {
     receiver_outgoing_artifact: Receiver<ConsensusMessage>,
     sender_outgoing_artifact: Sender<ConsensusMessage>,
     finalization_times: Arc<RwLock<BTreeMap<Height, Option<HeightMetrics>>>>,
-    time_source: Arc<SysTimeSource>,
     manager: Option<ArtifactProcessorManager>,
 }
 
@@ -96,9 +95,6 @@ impl Peer {
         let (sender_outgoing_artifact, receiver_outgoing_artifact) =
             crossbeam_channel::unbounded::<ConsensusMessage>();
 
-        // Initialize the time source.
-        let time_source = Arc::new(SysTimeSource::new());
-
         // Create a Swarm to manage peers and events
         Self {
             replica_number,
@@ -120,14 +116,8 @@ impl Peer {
             receiver_outgoing_artifact,
             sender_outgoing_artifact,
             finalization_times,
-            time_source,
             manager: None,
         }
-        // println!(
-        //     "Local node initialized with number: {} and peer id: {:?}",
-        //     local_peer.replica_number, local_peer_id
-        // );
-        //local_peer
     }
 
     pub fn listen_for_dialing(&mut self) {
@@ -278,7 +268,6 @@ impl Peer {
                         self.manager = Some(ArtifactProcessorManager::new(
                             self.replica_number,
                             self.subnet_params.clone(),
-                            Arc::clone(&self.time_source),
                             self.sender_outgoing_artifact.clone(),
                             Arc::clone(&self.finalization_times),
                         ));
@@ -314,7 +303,7 @@ impl Peer {
                     Some(manager) => {
                         manager.on_artifact(UnvalidatedArtifact::new(
                             consensus_message,
-                            self.time_source.get_relative_time(),
+                            system_time_now(),
                         ));
                     }
                     None => (),
