@@ -4,130 +4,40 @@ import time
 import os
 
 peers = [
-    # Stockholm
-    {
-        "number": "13",
-        "ip": "13.51.56.252",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Paris
-    {
-        "number": "12",
-        "ip": "52.47.154.248",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Zurich
-    {
-        "number": "11",
-        "ip": "16.62.65.183",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Montreal
-    {
-        "number": "10",
-        "ip": "3.99.221.224",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Cali
-    {
-        "number": "9",
-        "ip": "54.215.31.233",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # London
-    {
-        "number": "8",
-        "ip": "3.8.94.18",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Frankfurt
-    {
-        "number": "7",
-        "ip": "3.120.206.238",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Oregon
-    {
-        "number": "6",
-        "ip": "54.188.124.179",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Ohio
-    {
-        "number": "5",
-        "ip": "18.221.207.66",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Cali
+    # Sao Paolo
     {
         "number": "4",
-        "ip": "54.183.129.110",
+        "ip": "54.94.232.44",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
-    # Singapore
-    {
+    # Cape Town
+    {    
         "number": "3",
-        "ip": "13.212.154.248",
+        "ip": "13.245.18.82",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
-    # Sydney
-    {
+    # Melbourne
+    {    
         "number": "2",
-        "ip": "13.54.192.50",
+        "ip": "16.50.238.41",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
-    # Seoul
+    # Stockholm
     {
         "number": "1",
-        "ip": "13.209.9.52",
+        "ip": "13.51.56.252",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -136,18 +46,30 @@ peers = [
     },
 ]
 
+processes = []
+
 for peer in peers:
-    print("\nEmpty docker on peer ", peer["number"])
+    #print("\nEmpty docker on peer ", peer["number"])
     cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'docker stop $(docker ps -a -q)\''
-    process = subprocess.Popen(cmd, shell=True)
-    process.wait()
+    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL)
+    processes.append(process)
     cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'docker rm -vf $(docker ps -aq)\''
-    process = subprocess.Popen(cmd, shell=True)
-    process.wait()
+    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL)
+    processes.append(process)
     cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'docker rmi -f $(docker images -aq)\''
-    process = subprocess.Popen(cmd, shell=True)
-    process.wait()
-    print("\nReboot peer ", peer["number"])
+    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL)
+    processes.append(process)
+
+for p in processes:
+    p.communicate() # waits for replica to finish
+
+processes = []
+
+for peer in peers:
+    #print("\nReboot peer ", peer["number"])
     cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'sudo reboot\''
     process = subprocess.Popen(cmd, shell=True)
-    process.wait()
+    processes.append(process)
+
+for p in processes:
+    p.communicate() # waits for replica to finish
