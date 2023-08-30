@@ -36,7 +36,7 @@ far = (
         [stockholm_lon, stockholm_lat],
         [capetown_lon, capetown_lat],
         [saop_lon, saop_lat],
-        [sydney_lon, sydney_lat],
+        [melbourne_lon, melbourne_lat],
         )
 
 
@@ -78,7 +78,7 @@ all = ( [cali_lon, cali_lat],
         )
 
 
-for loc in all:
+for loc in far:
     plt.plot(loc[0], loc[1], 'o', color = 'red', ms=10, transform=ccrs.PlateCarree())
     
     #plt.text(loc[0] - 3, loc[1] - 12, 'λ = 1.21, σ = 0.89',
