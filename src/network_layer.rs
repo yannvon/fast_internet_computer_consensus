@@ -173,7 +173,7 @@ impl Peer {
                                                 hash: String::from("block1"),
                                                 value: Block {
                                                     parent: String::from("block0"),
-                                                    payload: Payload::new(0),
+                                                    payload: Payload::new(3),
                                                     height: 1,
                                                     rank: 0,
                                                 },
@@ -196,7 +196,7 @@ impl Peer {
                                                 hash: String::from("block1"),
                                                 value: Block {
                                                     parent: String::from("block0"),
-                                                    payload: Payload::new(0),
+                                                    payload: Payload::new(3),
                                                     height: 1,
                                                     rank: 0,
                                                 },

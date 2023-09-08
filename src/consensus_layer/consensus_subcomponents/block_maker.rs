@@ -197,8 +197,8 @@ fn get_dependencies(
         None => Some((
             RandomBeacon {},
             Block {
-                parent: String::from("Genesis has no parent"),
-                payload: Payload::new(0),
+                parent: String::from("block-1"),
+                payload: Payload::new(3),
                 height: 0,
                 rank: 0,
             },
