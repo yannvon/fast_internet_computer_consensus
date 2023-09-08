@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     consensus_layer::{artifacts::ConsensusMessage, height_index::Height, pool_reader::PoolReader},
-    crypto::{CryptoHashOf, Hashed, Signed},
+    crypto::{CryptoHashOf, Hashed, Signed, TurboHash},
     SubnetParams,
 };
 
@@ -15,6 +15,12 @@ use super::block_maker::Block;
 pub struct FinalizationShareContent {
     pub height: Height,
     pub block: CryptoHashOf<Block>,
+}
+
+impl TurboHash for FinalizationShareContent {
+    fn tubro_hash(&self) -> String {
+        format!("FSh{}", self.height)
+    }
 }
 
 impl FinalizationShareContent {

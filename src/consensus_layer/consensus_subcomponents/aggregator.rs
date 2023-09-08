@@ -5,7 +5,7 @@
 
 use crate::consensus_layer::height_index::Height;
 use crate::consensus_layer::{artifacts::ConsensusMessage, pool_reader::PoolReader};
-use crate::crypto::{CryptoHashOf, Hashed, Signed};
+use crate::crypto::{CryptoHashOf, Hashed, Signed, TurboHash};
 use crate::{FinalizationType, HeightMetrics, SubnetParams};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -30,6 +30,12 @@ impl NotarizationContent {
     }
 }
 
+impl TurboHash for NotarizationContent {
+    fn tubro_hash(&self) -> String {
+        format!("NCA{}", self.height)
+    }
+}
+
 pub type Notarization = Signed<NotarizationContent, u8>;
 
 /// FinalizationContent holds the values that are signed in a finalization
@@ -42,6 +48,12 @@ pub struct FinalizationContent {
 impl FinalizationContent {
     pub fn new(height: Height, block: CryptoHashOf<Block>) -> Self {
         FinalizationContent { height, block }
+    }
+}
+
+impl TurboHash for FinalizationContent {
+    fn tubro_hash(&self) -> String {
+        format!("FCA{}", self.height)
     }
 }
 

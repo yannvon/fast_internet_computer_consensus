@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use sha2::{Digest, Sha256};
+//use sha2::{Digest, Sha256};
 use std::{hash::Hash, marker::PhantomData};
 
 // Signed contains the signed content and its signature.
@@ -7,6 +7,20 @@ use std::{hash::Hash, marker::PhantomData};
 pub struct Signed<T, S> {
     pub content: T,
     pub signature: S,
+}
+
+pub trait TurboHash {
+    fn tubro_hash(&self) -> String;
+}
+
+impl<T: TurboHash, S: ToString> TurboHash for Signed<T, S> {
+    fn tubro_hash(&self) -> String {
+        format!(
+            "signed{}.{}",
+            self.content.tubro_hash(),
+            self.signature.to_string()
+        )
+    }
 }
 
 /// Bundle of both a value and its hash. Once created it remains immutable,
@@ -18,11 +32,8 @@ pub struct Hashed<T> {
     pub(crate) value: T,
 }
 
-impl<T> Hashed<T> {
-    pub fn new(artifact: T) -> Self
-    where
-        T: Serialize,
-    {
+impl<T: Serialize + TurboHash> Hashed<T> {
+    pub fn new(artifact: T) -> Self {
         Self {
             hash: Hashed::crypto_hash(&artifact),
             value: artifact,
@@ -34,14 +45,18 @@ impl<T> Hashed<T> {
         &self.hash
     }
 
-    pub fn crypto_hash(artifact: &T) -> CryptoHash
-    where
-        T: Serialize,
-    {
-        let payload = serde_json::json!(artifact);
-        let mut hasher = Sha256::new();
-        hasher.update(payload.to_string().as_bytes());
-        hex::encode(hasher.finalize().as_slice())
+    pub fn crypto_hash(artifact: &T) -> CryptoHash {
+        //let payload = serde_json::json!(artifact);
+        //let mut hasher = Sha256::new();
+        //hasher.update(payload.to_string().as_bytes());
+        //hex::encode(hasher.finalize().as_slice())
+        hex::encode(artifact.tubro_hash())
+    }
+}
+
+impl<T: TurboHash> TurboHash for Hashed<T> {
+    fn tubro_hash(&self) -> String {
+        self.hash.clone()
     }
 }
 
