@@ -55,7 +55,7 @@ pub mod time_source;
 
 #[derive(StructOpt, Debug)]
 struct Opt {
-    #[structopt(long, default_value = "0")]
+    #[structopt(long, default_value = "3")]
     blocksize: usize, // number of bytes we put in a block
     #[structopt(long)]
     r: u8, // replica number

@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: fast_internet_computer_consensus:latest
-    command: ["--cod", "--r", $REPLICA_NUMBER, "--n", $TOTAL_REPLICA_NUMBER, "--f", $FAULTY_REPLICAS, "--p", $DISAGREEING_REPLICA, "--t", $EXECUTION_TIME, "--d", $NOTARIZATION_DELAY, "--broadcast_interval", "$BROADCAST_INTERVAL","--artifact_manager_polling_interval", "$ARTIFACT_MANAGER_POLLING_INTERVAL", "--broadcast_interval_ramp_up", "$BROADCAST_INTERVAL_RAMP_UP", "--ramp_up_time", "$RAMP_UP_TIME", "--port", $PORT, "--blocksize", "$BLOCKSIZE"]
+    command: ["--cod", "--r", $REPLICA_NUMBER, "--n", $TOTAL_REPLICA_NUMBER, "--f", $FAULTY_REPLICAS, "--p", $DISAGREEING_REPLICA, "--t", $EXECUTION_TIME, "--d", $NOTARIZATION_DELAY, "--broadcast_interval", "$BROADCAST_INTERVAL","--artifact_manager_polling_interval", "$ARTIFACT_MANAGER_POLLING_INTERVAL", "--broadcast_interval_ramp_up", "$BROADCAST_INTERVAL_RAMP_UP", "--ramp_up_time", "$RAMP_UP_TIME", "--port", $PORT, "--blocksize", $BLOCKSIZE]
     ports:
       - "56789:56789"
       - "56790:56790"
