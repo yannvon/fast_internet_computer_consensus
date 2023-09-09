@@ -4,30 +4,20 @@ import time
 import os
 
 peers = [
-    # Sao Paolo
+    # Cape Town
     {
         "number": "4",
-        "ip": "54.94.232.44",
+        "ip": "13.246.27.80",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
-    # Cape Town
-    {    
+    # Sao Paolo
+    {
         "number": "3",
-        "ip": "13.245.18.82",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Melbourne
-    {    
-        "number": "2",
-        "ip": "16.50.238.41",
+        "ip": "15.228.193.25",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -36,8 +26,18 @@ peers = [
     },
     # Stockholm
     {
+        "number": "2",
+        "ip": "16.170.231.130",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Melbourne
+    {
         "number": "1",
-        "ip": "13.51.56.252",
+        "ip": "16.50.58.129",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -49,7 +49,7 @@ peers = [
 processes = []
 
 for peer in peers:
-    #print("\nEmpty docker on peer ", peer["number"])
+    # print("\nEmpty docker on peer ", peer["number"])
     cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'docker stop $(docker ps -a -q)\''
     process = subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL)
     processes.append(process)
@@ -61,15 +61,15 @@ for peer in peers:
     processes.append(process)
 
 for p in processes:
-    p.communicate() # waits for replica to finish
+    p.communicate()  # waits for replica to finish
 
 processes = []
 
 for peer in peers:
-    #print("\nReboot peer ", peer["number"])
+    # print("\nReboot peer ", peer["number"])
     cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'sudo reboot\''
     process = subprocess.Popen(cmd, shell=True)
     processes.append(process)
 
 for p in processes:
-    p.communicate() # waits for replica to finish
+    p.communicate()  # waits for replica to finish
