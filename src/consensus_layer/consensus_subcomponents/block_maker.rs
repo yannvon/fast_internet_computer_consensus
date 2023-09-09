@@ -12,8 +12,8 @@ use crate::{
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub struct Payload {
-    #[serde(with = "serde_bytes")]
-    pl: Vec<u8>,
+    //#[serde(with = "serde_bytes")]
+    pl: String,
 }
 
 /*impl Default for Payload {
@@ -24,7 +24,9 @@ pub struct Payload {
 
 impl Payload {
     pub fn new(size: usize) -> Self {
-        Self { pl: vec![5; size] } // 5 for every byte.
+        Self {
+            pl: "a".repeat(size),
+        }
     }
 }
 

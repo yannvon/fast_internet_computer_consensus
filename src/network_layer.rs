@@ -173,7 +173,9 @@ impl Peer {
                                                 hash: String::from("block1"),
                                                 value: Block {
                                                     parent: String::from("block0"),
-                                                    payload: Payload::new(3),
+                                                    payload: Payload::new(
+                                                        self.subnet_params.blocksize,
+                                                    ),
                                                     height: 1,
                                                     rank: 0,
                                                 },
@@ -183,6 +185,7 @@ impl Peer {
                                     ))
                                     .unwrap(),
                                 );
+                                println!("Dupsko");
                             }
                         }
                         NotarizationShareContent::ICC(share) => {
@@ -196,7 +199,9 @@ impl Peer {
                                                 hash: String::from("block1"),
                                                 value: Block {
                                                     parent: String::from("block0"),
-                                                    payload: Payload::new(3),
+                                                    payload: Payload::new(
+                                                        self.subnet_params.blocksize,
+                                                    ),
                                                     height: 1,
                                                     rank: 0,
                                                 },
