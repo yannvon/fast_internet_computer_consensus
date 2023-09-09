@@ -56,7 +56,7 @@ impl<T: Serialize + TurboHash> Hashed<T> {
 
 impl<T: TurboHash> TurboHash for Hashed<T> {
     fn tubro_hash(&self) -> String {
-        self.hash.clone()
+        format!("hashed{}", self.hash.clone())
     }
 }
 
