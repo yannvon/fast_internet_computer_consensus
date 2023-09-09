@@ -144,13 +144,13 @@ impl BlockMaker {
     // Construct a block proposal
     fn propose_block(
         &self,
-        pool: &PoolReader<'_>,
+        _pool: &PoolReader<'_>,
         rank: u8,
         parent: Block,
     ) -> Option<BlockProposal> {
         let parent_hash = Hashed::crypto_hash(&parent);
         let height: u64 = parent.height + 1;
-        self.construct_block_proposal(pool, parent, parent_hash, height, rank)
+        self.construct_block_proposal(parent_hash, height, rank)
     }
 
     // Construct a block proposal with specified validation context, parent
@@ -159,8 +159,6 @@ impl BlockMaker {
     #[allow(clippy::too_many_arguments)]
     fn construct_block_proposal(
         &self,
-        _pool: &PoolReader<'_>,
-        _parent: Block,
         parent_hash: String,
         height: u64,
         rank: u8,

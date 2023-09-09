@@ -50,7 +50,7 @@ impl<T: Serialize + TurboHash> Hashed<T> {
         //let mut hasher = Sha256::new();
         //hasher.update(payload.to_string().as_bytes());
         //hex::encode(hasher.finalize().as_slice())
-        hex::encode(artifact.tubro_hash())
+        artifact.tubro_hash()
     }
 }
 
