@@ -40,7 +40,7 @@ far = (
         )
 
 
-spread = ( 
+outliers = ( 
         [cali_lon, cali_lat], 
         [cali_lon+2, cali_lat+2], 
         [mtl_lon, mtl_lat],
@@ -59,7 +59,7 @@ spread = (
         [singa_lon, singa_lat],
         )
 
-all = ( [cali_lon, cali_lat], 
+wan = ( [cali_lon, cali_lat], 
         [mtl_lon, mtl_lat],
         [tokyo_lon, tokyo_lat], 
         [frank_lon, frank_lat],
@@ -77,14 +77,21 @@ all = ( [cali_lon, cali_lat],
         [ohio_lon-1, ohio_lat-1],
         )
 
+for loc in wan:
+    plt.plot(loc[0], loc[1], 'bo', color = 'black', alpha=0.99, ms=10, transform=ccrs.PlateCarree())
 
 for loc in far:
-    plt.plot(loc[0], loc[1], 'o', color = 'red', ms=10, transform=ccrs.PlateCarree())
+    plt.plot(loc[0], loc[1], 's', color = 'blue', alpha=0.9,  ms=10, transform=ccrs.PlateCarree())
     
+for loc in outliers:
+    plt.plot(loc[0], loc[1], '^', color = 'red', alpha=0.8, ms=10, transform=ccrs.PlateCarree())
+
+
+
     #plt.text(loc[0] - 3, loc[1] - 12, 'λ = 1.21, σ = 0.89',
     #        horizontalalignment='left', transform=ccrs.PlateCarree())
 
-plt.savefig('map.png')
+plt.savefig('map.png',  bbox_inches='tight', dpi=300)
 plt.show()
 
 

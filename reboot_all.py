@@ -3,21 +3,12 @@ import subprocess
 import time
 import os
 
-peers = [
-    # Sao Paolo
+
+peers = [ 
+     # Cape Town
     {
         "number": "4",
-        "ip": "54.94.232.44",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Cape Town
-    {    
-        "number": "3",
-        "ip": "13.245.18.82",
+        "ip": "13.246.27.80",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -25,9 +16,19 @@ peers = [
         "remote_peers_addresses": "",
     },
     # Melbourne
-    {    
+    {
+        "number": "3",
+        "ip": "16.50.58.129",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Sao Paolo
+    {
         "number": "2",
-        "ip": "16.50.238.41",
+        "ip": "15.228.193.25",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -37,13 +38,14 @@ peers = [
     # Stockholm
     {
         "number": "1",
-        "ip": "13.51.56.252",
+        "ip": "16.170.231.130",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
+
 ]
 
 processes = []

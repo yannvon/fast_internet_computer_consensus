@@ -6,40 +6,40 @@ import os
 
 
 peers = [
-    # Sao Paolo
+    # North Virginia
     {
         "number": "16",
-        "ip": "54.94.232.44",
+        "ip": "18.212.98.107",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
-    # Sao Paolo
+    # Ohio
     {
         "number": "15",
-        "ip": "18.231.108.79",
+        "ip": "52.15.97.86",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
-    # Bahrain
+    # California
     {
         "number": "14",
-        "ip": "15.184.220.208",
+        "ip": "18.144.174.69",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
-    # Stockholm
+    # Oregon
     {
         "number": "13",
-        "ip": "13.51.56.252",
+        "ip": "54.149.56.126",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -49,67 +49,47 @@ peers = [
     # Frankfurt
     {
         "number": "12",
-        "ip": "3.120.206.238",
+        "ip": "52.28.27.163",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
-    # Montreal
+    # London
     {
         "number": "11",
-        "ip": "3.99.221.224",
+        "ip": "13.40.113.238",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
-    # Sydney
+    # Paris
     {
         "number": "10",
-        "ip": "13.54.192.50",
+        "ip": "15.237.41.56",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
-    # Singapore
+    # Stockholm
     {
         "number": "9",
-        "ip": "13.212.154.248",
+        "ip": "16.170.231.130",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
-    # Seoul
+    # Zurich
     {
         "number": "8",
-        "ip": "13.209.9.52",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Mumbai
-    {
-        "number": "7",
-        "ip": "3.111.33.248",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Melbourne
-    {    
-        "number": "6",
-        "ip": "16.50.238.41",
+        "ip": "16.62.64.179",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -118,48 +98,68 @@ peers = [
     },
     # Hong Kong
     {
-        "number": "5",
-        "ip": "18.162.194.131",
+        "number": "7",
+        "ip": "43.198.109.155",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
-    # Cape Town
+    # Jakarta
+    {    
+        "number": "6",
+        "ip": "108.137.96.187",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Melbourne
+    {
+        "number": "5",
+        "ip": "16.50.58.129",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Mumbai
     {    
         "number": "4",
-        "ip": "13.245.18.82",
+        "ip": "65.2.127.126",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
-    # Oregon
+    # Osaka
     {
         "number": "3",
-        "ip": "54.188.124.179",
+        "ip": "15.168.60.10",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
-    # Cali
+    # Seoul
     {
         "number": "2",
-        "ip": "54.215.31.233",
+        "ip": "13.209.74.15",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
-    # Ohio
+    # Singapore
     {
         "number": "1",
-        "ip": "3.22.75.75",
+        "ip": "54.255.180.185",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -167,6 +167,91 @@ peers = [
         "remote_peers_addresses": "",
     },
 ]
+
+others = [
+    # Tokyo
+    {
+        "number": "x",
+        "ip": "3.112.230.168",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Montreal
+    {
+        "number": "x",
+        "ip": "35.182.194.19",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Cape Town
+    {
+        "number": "x",
+        "ip": "13.246.27.80",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Bahrain
+    {
+        "number": "x",
+        "ip": "157.175.47.82",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Sao Paolo
+    {
+        "number": "x",
+        "ip": "15.228.193.25",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # California 2
+    {
+        "number": "x",
+        "ip": "54.177.165.217",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Ohio 2
+    {
+        "number": "x",
+        "ip": "3.23.131.96",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Zurich 2
+    {
+        "number": "x",
+        "ip": "16.62.97.69",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+]
+
+
 
 
 # Add hosts to known hosts

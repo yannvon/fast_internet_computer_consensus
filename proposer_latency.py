@@ -6,12 +6,18 @@ import json
 import matplotlib.pyplot as plt
 import matplotlib
 
-folder = "16_5" 
+folder = "paper/experiments/horsemen/" 
+folder = "paper/experiments/6us+6asia+4/" 
+folder = "paper/experiments/7us+6eu+3as/" 
+name = "16_5_0"
 
 N = 16
+figsize = (5,4)
+yaxis = [0,1.8]
+
 
 def getBenchmarks(n_replica):
-    with open(f'./{folder}/benchmark_results_{n_replica}.json', 'r') as f:
+    with open(f'./{folder}{name}/benchmark_results_{n_replica:02d}.json', 'r') as f:
         return json.loads(f.read())
 
 def fillMissingElements(iterations, metrics, default_element):
@@ -144,17 +150,17 @@ def plotAllProposers():
             total_dk_finalizations,
             total_non_finalizations,
         )
-        plt.savefig(f'replica{i}.png')
+        plt.savefig(f'{folder}{name}/replica{i}.png')
         plt.close()
         #plt.show()
 
 def plotAll():
     for i in range(1,N+1):
         benchmark = getBenchmarks(i)
-        plt.figure(figsize=(8,6), dpi=300)
+        plt.figure(figsize=figsize, dpi=300)
         plt.plot() 
-        iterations = [int(iteration) for iteration in benchmark["finalization_times"].keys()]
-        latencies = [metrics["latency"]["secs"]+metrics["latency"]["nanos"]*1e-9 for metrics in benchmark["finalization_times"].values()]
+        iterations = [int(iteration) for iteration in benchmark["finalization_times"].keys()][:-1]
+        latencies = [metrics["latency"]["secs"]+metrics["latency"]["nanos"]*1e-9 for metrics in benchmark["finalization_times"].values()][1:]
         filled_iterations, filled_latencies = fillMissingElements(iterations, latencies, 0)
         finalization_types = [metrics["fp_finalization"] for metrics in benchmark["finalization_times"].values()]
         _, filled_finalization_types = fillMissingElements(iterations, finalization_types, "-")
@@ -180,11 +186,11 @@ def plotAll():
             total_dk_finalizations,
             total_non_finalizations,
         )
-        plt.savefig(f'replica{i}.png')
+        plt.savefig(f'{folder}{name}/replica{i}.png')
         plt.close()
 
 def plotAgregate():
-    plt.figure(figsize=(8,6), dpi=300)
+    plt.figure(figsize=figsize, dpi=300)
     plt.plot() 
     ax = plt.gca()
     ax.set_xlabel("Round")
@@ -204,8 +210,8 @@ def plotAgregate():
     
     for i in range(1,N+1):
         benchmark = getBenchmarks(i)
-        iterations = [int(iteration) for iteration in benchmark["finalization_times"].keys()]
-        latencies = [metrics["latency"]["secs"]+metrics["latency"]["nanos"]*1e-9 for metrics in benchmark["finalization_times"].values()]
+        iterations = [int(iteration) for iteration in benchmark["finalization_times"].keys()][:-2]
+        latencies = [metrics["latency"]["secs"]+metrics["latency"]["nanos"]*1e-9 for metrics in benchmark["finalization_times"].values()][2:]
         filled_iterations, filled_latencies = fillMissingElements(iterations, latencies, 0)
         finalization_types = [metrics["fp_finalization"] for metrics in benchmark["finalization_times"].values()]
         _, filled_finalization_types = fillMissingElements(iterations, finalization_types, "-")
@@ -223,9 +229,8 @@ def plotAgregate():
     handles = [fp_bar, ic_bar, dk_bar]
     labels = ["FP-finalized block", "IC-finalized block", "Received finalization from peer"]
     ax.legend(handles, labels, loc="upper right")
-
-    
-    plt.savefig(f'prop_latencies_{folder}.png')
+    ax.set_ylim(yaxis)
+    plt.savefig(f'{folder}{name}/prop_latencies_{name}.png')
     plt.close()
 
 #benchmark = getBenchmarks(1)

@@ -15,167 +15,14 @@ PI=20
 BIRU=100
 RUT=1
 
-UPDATE_REPO = False
+UPDATE_REPO = True
 commit = "cb76ac888b0539a3" # Put hash of commit, if update repo is necessary.
 
 peers = [ 
-    # Tokyo
-    {
-        "number": "6",
-        "ip": "52.194.253.125",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Jakarta
-    {
-        "number": "5",
-        "ip": "108.136.215.50",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # London
+     # Cape Town
     {
         "number": "4",
-        "ip": "3.8.94.18",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Paris
-    {
-        "number": "3",
-        "ip": "52.47.154.248",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Cali
-    {
-        "number": "2",
-        "ip": "54.183.129.110",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Ohio
-    {
-        "number": "1",
-        "ip": "18.221.207.66",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-]
-
-peersWorld = [
-    # Sao Paolo
-    {
-        "number": "16",
-        "ip": "54.94.232.44",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Sao Paolo
-    {
-        "number": "15",
-        "ip": "18.231.108.79",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Bahrain
-    {
-        "number": "14",
-        "ip": "15.184.220.208",
-        "web_server_port": "56790",
-        "libp2p_port": "56789", 
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Stockholm
-    {
-        "number": "13",
-        "ip": "13.51.56.252",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Frankfurt
-    {
-        "number": "12",
-        "ip": "3.120.206.238",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Montreal
-    {
-        "number": "11",
-        "ip": "3.99.221.224",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Sydney
-    {
-        "number": "10",
-        "ip": "13.54.192.50",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Singapore
-    {
-        "number": "9",
-        "ip": "13.212.154.248",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Seoul
-    {
-        "number": "8",
-        "ip": "13.209.9.52",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Mumbai
-    {
-        "number": "7",
-        "ip": "3.111.33.248",
+        "ip": "13.246.27.80",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
@@ -183,65 +30,36 @@ peersWorld = [
         "remote_peers_addresses": "",
     },
     # Melbourne
-    {    
-        "number": "6",
-        "ip": "16.50.238.41",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Hong Kong
-    {
-        "number": "5",
-        "ip": "18.162.194.131",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Cape Town
-    {    
-        "number": "4",
-        "ip": "13.245.18.82",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
-    # Oregon
     {
         "number": "3",
-        "ip": "54.188.124.179",
+        "ip": "16.50.58.129",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
-    # Cali
+    # Sao Paolo
     {
         "number": "2",
-        "ip": "54.215.31.233",
+        "ip": "15.228.193.25",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
-    # Ohio
+    # Stockholm
     {
         "number": "1",
-        "ip": "3.22.75.75",
+        "ip": "16.170.231.130",
         "web_server_port": "56790",
         "libp2p_port": "56789",
         "key_file": "aws_global",
         "id": "",
         "remote_peers_addresses": "",
     },
+
 ]
 
 
@@ -255,7 +73,6 @@ if UPDATE_REPO:
         clone_repo_cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'rm -rf fast_internet_computer_consensus/\''
         process = subprocess.Popen(clone_repo_cmd, shell=True)
         process.wait()
-
 
     print("\Cloning repo on replicas")
 
