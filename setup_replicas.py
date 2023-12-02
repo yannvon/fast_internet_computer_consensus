@@ -3,8 +3,6 @@ import subprocess
 import time
 import os
 
-
-
 peers = [
     # North Virginia
     {
@@ -264,7 +262,7 @@ for peer in peers:
 
 for peer in peers:
     print("\nInstalling docker for replica", peer["number"])
-    os.chmod("./keys/"+peer["key_file"], 0o400)
+    os.chmod("./keys/" + peer["key_file"], 0o400)
     docker_installation_cmds = [
         "sudo apt-get update",
         "sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release",
@@ -272,10 +270,12 @@ for peer in peers:
         'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null',
         "sudo apt-get update",
         "sudo apt-get install -y docker-ce docker-ce-cli containerd.io",
-        "sudo usermod -aG docker $USER"
+        "sudo usermod -aG docker $USER",
     ]
     for cmd in docker_installation_cmds:
-        install_docker_cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'{cmd}\''
+        install_docker_cmd = (
+            f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'{cmd}\''
+        )
         process = subprocess.Popen(install_docker_cmd, shell=True)
         process.wait()
 
@@ -293,10 +293,12 @@ processes = []
 for peer in peers:
     print("\nBuilding container for replica", peer["number"])
     build_container_cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'cd fast_internet_computer_consensus && docker compose build\''
-    process = subprocess.Popen(build_container_cmd, shell=True, stdout=subprocess.DEVNULL)
+    process = subprocess.Popen(
+        build_container_cmd, shell=True, stdout=subprocess.DEVNULL
+    )
     processes.append(process)
 
 for p in processes:
-    p.communicate() # waits for replica to finish
+    p.communicate()  # waits for replica to finish
 
 print("\nContainer built on new replicas")

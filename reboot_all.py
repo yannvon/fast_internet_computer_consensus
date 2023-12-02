@@ -35,7 +35,7 @@ peers = [
         "id": "",
         "remote_peers_addresses": "",
     },
-    # Stockholm
+    # Melbourne
     {
         "number": "1",
         "ip": "16.170.231.130",
@@ -51,7 +51,7 @@ peers = [
 processes = []
 
 for peer in peers:
-    #print("\nEmpty docker on peer ", peer["number"])
+    # print("\nEmpty docker on peer ", peer["number"])
     cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'docker stop $(docker ps -a -q)\''
     process = subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL)
     processes.append(process)
@@ -63,15 +63,15 @@ for peer in peers:
     processes.append(process)
 
 for p in processes:
-    p.communicate() # waits for replica to finish
+    p.communicate()  # waits for replica to finish
 
 processes = []
 
 for peer in peers:
-    #print("\nReboot peer ", peer["number"])
+    # print("\nReboot peer ", peer["number"])
     cmd = f'ssh -i ./keys/{peer["key_file"]} -t -q ubuntu@{peer["ip"]} \'sudo reboot\''
     process = subprocess.Popen(cmd, shell=True)
     processes.append(process)
 
 for p in processes:
-    p.communicate() # waits for replica to finish
+    p.communicate()  # waits for replica to finish

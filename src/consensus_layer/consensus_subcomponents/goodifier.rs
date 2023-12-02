@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     consensus_layer::{artifacts::ConsensusMessage, height_index::Height, pool_reader::PoolReader},
-    crypto::CryptoHashOf,
+    crypto::{CryptoHashOf, TurboHash},
     time_source::Time,
     SubnetParams,
 };
@@ -19,11 +19,26 @@ pub struct GoodnessArtifact {
     pub timestamp: Time,
 }
 
+impl TurboHash for GoodnessArtifact {
+    fn tubro_hash(&self) -> String {
+        format!(
+            "Good{}.{}",
+            self.children_height, self.total_acks_for_children
+        )
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct IMadeABlockArtifact {
     pub block_height: Height,
     pub maker_time: Time,
     pub my_id: u8,
+}
+
+impl TurboHash for IMadeABlockArtifact {
+    fn tubro_hash(&self) -> String {
+        format!("imab{}", self.block_height)
+    }
 }
 
 pub struct Goodifier {

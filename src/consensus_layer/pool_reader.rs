@@ -1,6 +1,5 @@
 use std::time::Duration;
 
-use crate::consensus_layer::artifacts::ConsensusMessageHashable;
 use crate::{consensus_layer::pool::ConsensusPoolImpl, time_source::system_time_now};
 
 use super::{
@@ -198,9 +197,8 @@ impl<'a> PoolReader<'a> {
             .min();
         */
         //if let Some(_round_start_time) = self.get_round_start_time(height) {
-        let finalization_time = current_time - i_produced.maker_time; //- mast.unwrap_or(current_time);
-        finalization_time
-        //}
-        //None
+        current_time - i_produced.maker_time //- mast.unwrap_or(current_time);
+                                             //}
+                                             //None
     }
 }

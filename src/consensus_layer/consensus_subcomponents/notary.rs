@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     consensus_layer::{artifacts::ConsensusMessage, height_index::Height, pool_reader::PoolReader},
-    crypto::{CryptoHashOf, Hashed, Signed},
+    crypto::{CryptoHashOf, Hashed, Signed, TurboHash},
     SubnetParams,
 };
 
@@ -14,6 +14,19 @@ use super::block_maker::{Block, BlockProposal};
 pub enum NotarizationShareContent {
     COD(NotarizationShareContentCOD), // content of notarization share when Consensus on Demand is used
     ICC(NotarizationShareContentICC), // content of notarization share when only Internet Computer Consensus is used
+}
+
+impl TurboHash for NotarizationShareContent {
+    fn tubro_hash(&self) -> String {
+        match self {
+            Self::COD(stuf) => {
+                format!("NShCOD{}.{}", stuf.height, stuf.is_ack,)
+            }
+            Self::ICC(stuf) => {
+                format!("NShICC{}", stuf.height,)
+            }
+        }
+    }
 }
 
 // NotarizationShareContentICC holds the values that are signed in a notarization share when only IC Consensus is used

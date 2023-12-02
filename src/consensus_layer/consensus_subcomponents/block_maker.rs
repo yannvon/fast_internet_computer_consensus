@@ -5,23 +5,28 @@ use crate::{
         artifacts::ConsensusMessage, consensus_subcomponents::goodifier::IMadeABlockArtifact,
         height_index::Height, pool_reader::PoolReader,
     },
-    crypto::{Hashed, Signed},
+    crypto::{Hashed, Signed, TurboHash},
     time_source::system_time_now,
     SubnetParams,
 };
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-pub struct Payload {}
+pub struct Payload {
+    //#[serde(with = "serde_bytes")]
+    pl: String,
+}
 
-impl Default for Payload {
+/*impl Default for Payload {
     fn default() -> Self {
         Self::new()
     }
-}
+}*/
 
 impl Payload {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(size: usize) -> Self {
+        Self {
+            pl: "a".repeat(size),
+        }
     }
 }
 
@@ -48,6 +53,12 @@ impl Block {
             height,
             rank,
         }
+    }
+}
+
+impl TurboHash for Block {
+    fn tubro_hash(&self) -> String {
+        format!("block{}", self.height)
     }
 }
 
@@ -135,13 +146,13 @@ impl BlockMaker {
     // Construct a block proposal
     fn propose_block(
         &self,
-        pool: &PoolReader<'_>,
+        _pool: &PoolReader<'_>,
         rank: u8,
         parent: Block,
     ) -> Option<BlockProposal> {
         let parent_hash = Hashed::crypto_hash(&parent);
         let height: u64 = parent.height + 1;
-        self.construct_block_proposal(pool, parent, parent_hash, height, rank)
+        self.construct_block_proposal(parent_hash, height, rank)
     }
 
     // Construct a block proposal with specified validation context, parent
@@ -150,13 +161,11 @@ impl BlockMaker {
     #[allow(clippy::too_many_arguments)]
     fn construct_block_proposal(
         &self,
-        _pool: &PoolReader<'_>,
-        _parent: Block,
         parent_hash: String,
         height: u64,
         rank: u8,
     ) -> Option<BlockProposal> {
-        let payload = Payload::new();
+        let payload = Payload::new(self.subnet_params.blocksize);
         let block = Block::new(parent_hash, payload, height, rank);
         Some(BlockProposal {
             signature: self.node_id,
@@ -188,8 +197,8 @@ fn get_dependencies(
         None => Some((
             RandomBeacon {},
             Block {
-                parent: String::from("Genesis has no parent"),
-                payload: Payload::new(),
+                parent: String::from("block-1"),
+                payload: Payload::new(3),
                 height: 0,
                 rank: 0,
             },

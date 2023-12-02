@@ -7,20 +7,63 @@ import matplotlib.pyplot as plt
 
 F = 1
 P = 0
-T = 120  # Runtime
+T = 300  # Runtime
 D = 5000  # Rank delay
 FICC = True
 BI = 10
 PI = 20
 BIRU = 100
 RUT = 1
-BS = 5  # libp2p floodsub works up to 2kb... (so something around 1950 here)
+BS = 3
 
 UPDATE_REPO = True
-commit = "cb76ac888b0539a3" # Put hash of commit, if update repo is necessary.
+commit = "cb76ac888b0539a3"  # Put hash of commit, if update repo is necessary.
 
-peers = [ 
-     # Cape Town
+peers = [
+    # Mumbai
+    {    
+        "number": "4",
+        "ip": "65.2.127.126",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Osaka
+    {
+        "number": "3",
+        "ip": "15.168.60.10",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Seoul
+    {
+        "number": "2",
+        "ip": "13.209.74.15",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+    # Singapore
+    {
+        "number": "1",
+        "ip": "54.255.180.185",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
+]
+
+peers1 = [
+    # Cape Town
     {
         "number": "4",
         "ip": "13.246.27.80",
@@ -30,19 +73,9 @@ peers = [
         "id": "",
         "remote_peers_addresses": "",
     },
-    # Melbourne
-    {
-        "number": "3",
-        "ip": "16.50.58.129",
-        "web_server_port": "56790",
-        "libp2p_port": "56789",
-        "key_file": "aws_global",
-        "id": "",
-        "remote_peers_addresses": "",
-    },
     # Sao Paolo
     {
-        "number": "2",
+        "number": "3",
         "ip": "15.228.193.25",
         "web_server_port": "56790",
         "libp2p_port": "56789",
@@ -52,7 +85,7 @@ peers = [
     },
     # Stockholm
     {
-        "number": "1",
+        "number": "2",
         "ip": "16.170.231.130",
         "web_server_port": "56790",
         "libp2p_port": "56789",
@@ -60,8 +93,18 @@ peers = [
         "id": "",
         "remote_peers_addresses": "",
     },
-
+    # Melbourne
+    {
+        "number": "1",
+        "ip": "16.50.58.129",
+        "web_server_port": "56790",
+        "libp2p_port": "56789",
+        "key_file": "aws_global",
+        "id": "",
+        "remote_peers_addresses": "",
+    },
 ]
+
 
 N = len(peers)
 
@@ -118,8 +161,7 @@ for peer in peers:
         contents[7] = "ARTIFACT_MANAGER_POLLING_INTERVAL=" + str(PI) + "\n"
         contents[8] = "BROADCAST_INTERVAL_RAMP_UP=" + str(BIRU) + "\n"
         contents[9] = "RAMP_UP_TIME=" + str(RUT) + "\n"
-        contents[10] = "BLOCKSIZE=" + str(BS) + "\n"
-        contents[11] = "PORT=56789\n"
+        #contents[10] = "BLOCKSIZE=" + str(BS) + "\n"
 
     with open("./.env.example", "w") as file:
         file.writelines(contents)
@@ -133,11 +175,11 @@ with open("docker-compose.yml", "r") as file:
     if FICC:
         contents[
             8
-        ] = '    command: ["--cod", "--r", $REPLICA_NUMBER, "--n", $TOTAL_REPLICA_NUMBER, "--f", $FAULTY_REPLICAS, "--p", $DISAGREEING_REPLICA, "--t", $EXECUTION_TIME, "--d", $NOTARIZATION_DELAY, "--broadcast_interval", "$BROADCAST_INTERVAL","--artifact_manager_polling_interval", "$ARTIFACT_MANAGER_POLLING_INTERVAL", "--broadcast_interval_ramp_up", "$BROADCAST_INTERVAL_RAMP_UP", "--ramp_up_time", "$RAMP_UP_TIME", "--blocksize", $BLOCKSIZE, "--port", $PORT]\n'
+        ] = '    command: ["--cod", "--r", $REPLICA_NUMBER, "--n", $TOTAL_REPLICA_NUMBER, "--f", $FAULTY_REPLICAS, "--p", $DISAGREEING_REPLICA, "--t", $EXECUTION_TIME, "--d", $NOTARIZATION_DELAY, "--broadcast_interval", "$BROADCAST_INTERVAL","--artifact_manager_polling_interval", "$ARTIFACT_MANAGER_POLLING_INTERVAL", "--broadcast_interval_ramp_up", "$BROADCAST_INTERVAL_RAMP_UP", "--ramp_up_time", "$RAMP_UP_TIME", "--port", $PORT]\n'
     else:
         contents[
             8
-        ] = '    command: ["--r", $REPLICA_NUMBER, "--n", $TOTAL_REPLICA_NUMBER, "--f", $FAULTY_REPLICAS, "--p", $DISAGREEING_REPLICA, "--t", $EXECUTION_TIME, "--d", $NOTARIZATION_DELAY, "--broadcast_interval", "$BROADCAST_INTERVAL","--artifact_manager_polling_interval", "$ARTIFACT_MANAGER_POLLING_INTERVAL", "--broadcast_interval_ramp_up", "$BROADCAST_INTERVAL_RAMP_UP", "--ramp_up_time", "$RAMP_UP_TIME", "--blocksize", $BLOCKSIZE, "--port", $PORT]\n'
+        ] = '    command: ["--r", $REPLICA_NUMBER, "--n", $TOTAL_REPLICA_NUMBER, "--f", $FAULTY_REPLICAS, "--p", $DISAGREEING_REPLICA, "--t", $EXECUTION_TIME, "--d", $NOTARIZATION_DELAY, "--broadcast_interval", "$BROADCAST_INTERVAL","--artifact_manager_polling_interval", "$ARTIFACT_MANAGER_POLLING_INTERVAL", "--broadcast_interval_ramp_up", "$BROADCAST_INTERVAL_RAMP_UP", "--ramp_up_time", "$RAMP_UP_TIME", "--port", $PORT]\n'
 
 with open("docker-compose.yml", "w") as file:
     file.writelines(contents)
@@ -156,7 +198,7 @@ for peer in peers:
 
 print("\nReplicas started")
 
-time.sleep(80)  # wait for docker containers to start
+time.sleep(100)  # wait for docker containers to start
 
 print("\nConnecting peers")
 

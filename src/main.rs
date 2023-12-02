@@ -55,6 +55,8 @@ pub mod time_source;
 
 #[derive(StructOpt, Debug)]
 struct Opt {
+    #[structopt(long, default_value = "3")]
+    blocksize: usize, // number of bytes we put in a block
     #[structopt(long)]
     r: u8, // replica number
     #[structopt(long, default_value = "6")]
@@ -93,10 +95,11 @@ pub struct SubnetParams {
     fast_internet_computer_consensus: bool,
     artifact_delay: u64,
     artifact_manager_polling_interval: u64,
+    blocksize: usize,
 }
 
 impl SubnetParams {
-    fn new(n: u8, f: u8, p: u8, cod: bool, d: u64, pi: u64) -> Self {
+    fn new(n: u8, f: u8, p: u8, cod: bool, d: u64, pi: u64, blocksize: usize) -> Self {
         Self {
             total_nodes_number: n,
             byzantine_nodes_number: f,
@@ -104,6 +107,7 @@ impl SubnetParams {
             fast_internet_computer_consensus: cod,
             artifact_delay: d,
             artifact_manager_polling_interval: pi,
+            blocksize,
         }
     }
 }
@@ -132,7 +136,7 @@ async fn post_remote_peers_addresses(
 #[async_std::main]
 async fn main() -> Result<()> {
     let opt = Opt::from_args();
-    println!("Replica number: {} running FICC: {}, with F: {}, P: {}, notarization delay: {}, broadcast_interval: {}, and artifact manager polling interval: {}", opt.r, opt.cod, opt.f, opt.p, opt.d, opt.broadcast_interval, opt.artifact_manager_polling_interval);
+    println!("Replica:{}, blocksize:{}, FICC:{}, f:{}, p:{}, notar_delay:{}, broadcast_interval:{}, and art_man poll interval:{}", opt.r, opt.blocksize, opt.cod, opt.f, opt.p, opt.d, opt.broadcast_interval, opt.artifact_manager_polling_interval);
 
     let finalizations_times =
         Arc::new(RwLock::new(BTreeMap::<Height, Option<HeightMetrics>>::new()));
@@ -148,6 +152,7 @@ async fn main() -> Result<()> {
             opt.cod,
             opt.d,
             opt.artifact_manager_polling_interval,
+            opt.blocksize,
         ),
         "gossip_blocks",
         cloned_finalization_times,
